@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { GraphJSON, Graph, Node, Edge } from "../../domain/entities/entities";
 import * as d3 from 'd3';
-
+import { DataService } from 'src/app/services/data.service';
+import LineColumnFinder from 'line-column'
 @Component({
   selector: 'app-directed-graph',
   templateUrl: './directed-graph.component.html',
@@ -8,18 +10,9 @@ import * as d3 from 'd3';
 })
 export class DirectedGraphComponent implements OnInit {
 
-  private nodes = [
-    { id: 1, name: "NodeA", type: "UI" },
-    { id: 2, name: "NodeB", type: "Event" },
-    { id: 3, name: "NodeC", type: "Event" },
-    { id: 4, name: "NodeD", type: "UI" }
-  ];
+  private nodes: Node[];
 
-  private links = [
-    { source: 1, target: 2 },
-    { source: 1, target: 3 },
-    { source: 4, target: 2 }
-  ];
+  private links: Edge[];
 
   private margin = 50;
   private width = 500 - (this.margin * 2);
@@ -27,15 +20,27 @@ export class DirectedGraphComponent implements OnInit {
   private svg;
   private simulation;
 
-  constructor() { }
+  constructor(private dataService: DataService) { }
 
   ngOnInit(): void {
-    this.createSvg();
+    this.dataService.getDataJson('assets/test.vue/data.json').subscribe(data => {
+      let graph = Graph.fromJson((data as GraphJSON));
+      console.log("Options", graph.options);
+      console.log("Nodes", graph.nodes);
+      console.log("Edges", graph.edges);
+      this.nodes = graph.nodes;
+      this.links = graph.edges;
+      this.createSvg();
+    });
+    this.dataService.getVueCode('assets/test.vue/test.vue').subscribe(data => {
+      let begin = new LineColumnFinder(data).toIndex(5,9);
+      let end = new LineColumnFinder(data).toIndex(5,29);
+      console.log("bruh",data.slice(begin, end))
+    });
   }
 
   private createSvg(): void {
-    this.svg = d3.select('body')
-      .append('svg')
+    this.svg = d3.select('svg')
       .attr('width', this.width)
       .attr('height', this.height)
       .append("g")
@@ -55,10 +60,13 @@ export class DirectedGraphComponent implements OnInit {
 
     let node = this.svg.append("g")
       .attr("class", "nodes")
-      .selectAll("circle")
+      .selectAll("rect")
       .data(this.nodes)
-      .enter().append("circle")
-      .attr("r", 5);
+      .enter().append("rect")
+      .attr("width", 150)
+      .attr("height", 25)
+      .on('pointermove', (e) => { this.handleMouseMovement(e); })
+      .on('click', (e) => { this.handleMouseClick(e); });
     // .call(d3.drag()
     //   .on("start", (d) => dragstarted(d))
     //   .on("drag", (d) => dragged(d))
@@ -83,45 +91,17 @@ export class DirectedGraphComponent implements OnInit {
         .attr("y2", function (d) { return d.target.y; });
 
       node
-        .attr("cx", function (d) { return d.x; })
-        .attr("cy", function (d) { return d.y; });
+        .attr("x", function (d) { return d.x; })
+        .attr("y", function (d) { return d.y; });
     }
+    this.simulation.restart();
   }
 
-  private drawBars(data: any[]): void {
-    // Create the X-axis band scale
-    const x = d3.scaleBand()
-      .range([0, this.width])
-      .domain(data.map(d => d.Framework))
-      .padding(0.2);
-
-    // Draw the X-axis on the DOM
-    this.svg.append("g")
-      .attr("transform", "translate(0," + this.height + ")")
-      .call(d3.axisBottom(x))
-      .selectAll("text")
-      .attr("transform", "translate(-10,0)rotate(-45)")
-      .style("text-anchor", "end");
-
-    // Create the Y-axis band scale
-    const y = d3.scaleLinear()
-      .domain([0, 200000])
-      .range([this.height, 0]);
-
-    // Draw the Y-axis on the DOM
-    this.svg.append("g")
-      .call(d3.axisLeft(y));
-
-    // Create and fill the bars
-    this.svg.selectAll("bars")
-      .data(data)
-      .enter()
-      .append("rect")
-      .attr("x", d => x(d.Framework))
-      .attr("y", d => y(d.Stars))
-      .attr("width", x.bandwidth())
-      .attr("height", (d) => this.height - y(d.Stars))
-      .attr("fill", "#d04a35");
+  handleMouseMovement(e) {
+    console.log('Mm', e);
   }
 
+  handleMouseClick(e) {
+    console.log('Mc', e);
+  }
 }
