@@ -57,6 +57,17 @@ export interface NodeJSON {
   parent?: any | null;
 }
 
+export interface Location {
+  start: LocationValue;
+  end: LocationValue;
+  codeString: string;
+}
+
+export interface LocationValue{
+  line: number;
+  column: number;
+}
+
 export interface NodeValueJSON {
   id?: string;
   name?: string;

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { GraphJSON, Graph, Node, Edge } from "../../domain/entities/entities";
+import { GraphJSON, Graph, Node, Edge, NodeType, LocationValue, EdgeType } from "../../domain/entities/entities";
 import * as d3 from 'd3';
 import { DataService } from 'src/app/services/data.service';
-import LineColumnFinder from 'line-column'
+import LineColumnFinder from 'line-column';
 @Component({
   selector: 'app-directed-graph',
   templateUrl: './directed-graph.component.html',
@@ -15,28 +15,64 @@ export class DirectedGraphComponent implements OnInit {
   private links: Edge[];
 
   private margin = 50;
-  private width = 500 - (this.margin * 2);
-  private height = 500 - (this.margin * 2);
+  private width = 1000 - (this.margin * 2);
+  private height = 1000 - (this.margin * 2);
   private svg;
   private simulation;
 
   constructor(private dataService: DataService) { }
 
   ngOnInit(): void {
-    this.dataService.getDataJson('assets/test.vue/data.json').subscribe(data => {
-      let graph = Graph.fromJson((data as GraphJSON));
-      console.log("Options", graph.options);
-      console.log("Nodes", graph.nodes);
-      console.log("Edges", graph.edges);
-      this.nodes = graph.nodes;
-      this.links = graph.edges;
-      this.createSvg();
+    this.prepareData();
+  }
+
+  private prepareData() {
+    this.dataService.getDataJson('assets/test.vue/data.json').subscribe(gData => {
+      let graph = Graph.fromJson((gData as GraphJSON));
+
+      this.dataService.getVueCode('assets/test.vue/test.vue').subscribe(data => {
+        graph.nodes.map(e => {
+          if (e.discriminator == NodeType.TAG) {
+            e.loc.codeString = this.getCodeString(data, e.loc.start, e.loc.end);
+          }
+        });
+
+        console.log("Options", graph.options);
+        console.log("Nodes", graph.nodes);
+        console.log("Edges", graph.edges);
+
+
+
+        this.nodes = graph.nodes;
+        this.links = graph.edges;
+        this.extractUIGraph(graph);
+        this.createSvg();
+      });
     });
-    this.dataService.getVueCode('assets/test.vue/test.vue').subscribe(data => {
-      let begin = new LineColumnFinder(data).toIndex(5,9);
-      let end = new LineColumnFinder(data).toIndex(5,29);
-      console.log("bruh",data.slice(begin, end))
-    });
+  }
+
+  //Only the Init-Node, Tag-Nodes and nodes they interact with should be visible in this graph
+  private extractUIGraph(fullGraph: Graph) {
+    let newGraph: Graph = new Graph();
+    let newEdges = fullGraph.edges.filter(e => e.label == EdgeType.EVENT);
+    //All nodes of Type TAG or INIT and the nodes that are targets of the event Edges.
+    let newNodes = fullGraph.nodes.filter(e => (e.discriminator == NodeType.TAG || e.discriminator == NodeType.INIT) || e.id == newEdges.find(el => el.target == e.id)?.target);
+    newGraph.edges = newEdges;
+    newGraph.nodes = newNodes;
+    newGraph.options = fullGraph.options;
+
+    console.log("NG-Nodes", newGraph.nodes);
+    console.log("NG-Edges", newGraph.edges);
+
+    this.nodes = newGraph.nodes;
+    this.links = newGraph.edges;
+  }
+
+  //TODO: Column index is increased by 1 to fix wrong Location from JSON. Is JSON really incorrect?
+  private getCodeString(data, start: LocationValue, end: LocationValue): string {
+    let from = new LineColumnFinder(data).toIndex(start.line, start.column + 1);
+    let to = new LineColumnFinder(data).toIndex(end.line, end.column + 1);
+    return data.slice(from, to);
   }
 
   private createSvg(): void {
@@ -48,8 +84,10 @@ export class DirectedGraphComponent implements OnInit {
 
     this.simulation = d3.forceSimulation()
       .force("link", d3.forceLink().id((d: any) => { return d.id; }))
-      .force("charge", d3.forceManyBody())
-      .force("center", d3.forceCenter(this.width / 2, this.height / 2));
+      .force('charge', d3.forceManyBody().strength(-500).distanceMin(100))
+      .force("center", d3.forceCenter(this.width / 2, this.height / 2))
+      .force("x", d3.forceX())
+      .force("y", d3.forceY());
 
     let link = this.svg.append("g")
       .attr("class", "links")
@@ -94,7 +132,7 @@ export class DirectedGraphComponent implements OnInit {
         .attr("x", function (d) { return d.x; })
         .attr("y", function (d) { return d.y; });
     }
-    this.simulation.restart();
+    this.simulation.alphaTarget(0.3);
   }
 
   handleMouseMovement(e) {
