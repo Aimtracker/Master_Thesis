@@ -10,7 +10,7 @@ import LineColumnFinder from 'line-column';
 })
 export class DirectedGraphComponent implements OnInit {
 
-  private nodes: Node[];
+  nodes: Node[];
 
   private links: Edge[];
 
@@ -64,8 +64,8 @@ export class DirectedGraphComponent implements OnInit {
     console.log("NG-Nodes", newGraph.nodes);
     console.log("NG-Edges", newGraph.edges);
 
-    this.nodes = newGraph.nodes;
-    this.links = newGraph.edges;
+    //this.nodes = newGraph.nodes;
+    //this.links = newGraph.edges;
   }
 
   //TODO: Column index is increased by 1 to fix wrong Location from JSON. Is JSON really incorrect?
@@ -84,7 +84,7 @@ export class DirectedGraphComponent implements OnInit {
 
     this.simulation = d3.forceSimulation()
       .force("link", d3.forceLink().id((d: any) => { return d.id; }))
-      .force('charge', d3.forceManyBody().strength(-500).distanceMin(100))
+      .force('charge', d3.forceManyBody().strength(-5000).distanceMin(100))
       .force("center", d3.forceCenter(this.width / 2, this.height / 2))
       .force("x", d3.forceX())
       .force("y", d3.forceY());
@@ -92,9 +92,11 @@ export class DirectedGraphComponent implements OnInit {
     let link = this.svg.append("g")
       .attr("class", "links")
       .style("stroke", "#000")
+      .style("stroke-width", "3px")
       .selectAll("line")
       .data(this.links)
-      .enter().append("line");
+      .enter().append("line")
+      .on('click', (e, d) => { this.handleEdgeMouseClick(e, d); });
 
     let node = this.svg.append("g")
       .attr("class", "nodes")
@@ -104,7 +106,7 @@ export class DirectedGraphComponent implements OnInit {
       .attr("width", 150)
       .attr("height", 25)
       .on('pointermove', (e) => { this.handleMouseMovement(e); })
-      .on('click', (e) => { this.handleMouseClick(e); });
+      .on('click', (e, d) => { this.handleNodeMouseClick(e, d); });
     // .call(d3.drag()
     //   .on("start", (d) => dragstarted(d))
     //   .on("drag", (d) => dragged(d))
@@ -112,7 +114,7 @@ export class DirectedGraphComponent implements OnInit {
 
 
     node.append("title")
-      .text(function (d) { return d.name; });
+      .text(function (d) { return d.id; });
 
     this.simulation
       .nodes(this.nodes)
@@ -136,10 +138,57 @@ export class DirectedGraphComponent implements OnInit {
   }
 
   handleMouseMovement(e) {
-    console.log('Mm', e);
+    //console.log('Mm', e);
   }
 
-  handleMouseClick(e) {
-    console.log('Mc', e);
+  //e = event, d = (logical) node that has been clicked on
+  handleNodeMouseClick(e, d) {
+    console.log('Mc e', e);
+    console.log('Mc d', d);
+    //d.fx = 300;
+    //find the target (logical) node. d is a reference to it and can directly manipulate it.
+    this.findNodeNeighbours(d);
+    let targetNode = this.nodes.find(n => n.id == d.id);
+    if (targetNode) {
+      //select node HTMLElement that was clicked on and change fill color
+      console.log("sel", d3.select(e.currentTarget).style("fill", "#ff0"));
+    }
+  }
+
+  //e = event, d = (logical) edge that has been clicked on
+  handleEdgeMouseClick(e, d) {
+    console.log('Mc e', e);
+    console.log('Mc d', d);
+
+    //select node HTMLElement that was clicked on and change fill color
+    console.log("sel", d3.select(e.currentTarget).style("stroke", "#ff0"));
+
+  }
+
+  findNodeNeighbours(clickedNode: Node) {
+    this.deselectAll();
+    let edges = this.links.filter((n: Edge) => (n.source == clickedNode || n.target == clickedNode));
+    edges.forEach(element => {
+      let edgeDOM = d3.selectAll("line").filter((d: Edge) => (d == element));
+
+      //nodes that interact with clickedNode
+      if (element.source != clickedNode) {
+        //take elements source and find that node
+        d3.selectAll("rect").filter((d: Node) => d.id == (element.source as Node).id).style("fill", "#f00");
+        edgeDOM.style("stroke", "#f00");
+      }
+
+      //nodes that clickedNode interacts with
+      if (element.target != clickedNode) {
+        //take elements target and find that node
+        d3.selectAll("rect").filter((d: Node) => (d.id == (element.target as Node).id)).style("fill", "#0f0");
+        edgeDOM.style("stroke", "#0f0");
+      }
+    });
+  }
+
+  deselectAll(){
+    d3.selectAll("line").style("stroke", "#000")
+    d3.selectAll("rect").style("fill", "#000")
   }
 }

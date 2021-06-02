@@ -105,8 +105,8 @@ export interface EdgeJSON {
 }
 
 export class Edge {
-  source: string;
-  target: string;
+  source: Node | string;
+  target: Node | string;
   label: EdgeType;
 
   static fromJson(json: EdgeJSON): Edge {
