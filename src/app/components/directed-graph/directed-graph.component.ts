@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { GraphJSON, Graph, Node, Edge, NodeType, LocationValue, EdgeType } from "../../domain/entities/entities";
 import * as d3 from 'd3';
 import { DataService } from 'src/app/services/data.service';
@@ -6,7 +6,8 @@ import LineColumnFinder from 'line-column';
 @Component({
   selector: 'app-directed-graph',
   templateUrl: './directed-graph.component.html',
-  styleUrls: ['./directed-graph.component.css']
+  styleUrls: ['./directed-graph.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class DirectedGraphComponent implements OnInit {
 
@@ -89,13 +90,27 @@ export class DirectedGraphComponent implements OnInit {
       .force("x", d3.forceX())
       .force("y", d3.forceY());
 
+    // build the arrow.
+    let arrow = this.svg.append("svg:defs").selectAll("marker")
+      .data(["arrow", "arrow-in", "arrow-out"])      // Different link/path types can be defined here
+      .enter().append("svg:marker")    // This section adds in the arrows
+      .attr("id", String)
+      .attr("viewBox", "0 -5 10 10")
+      .attr("refX", 15)
+      .attr("refY", -1.5)
+      .attr("markerWidth", 6)
+      .attr("markerHeight", 6)
+      .attr("orient", "auto")
+      .attr("class", (d) => d)
+      .append("svg:path")
+      .attr("d", "M0,-5L10,0L0,5");
+
     let link = this.svg.append("g")
       .attr("class", "links")
-      .style("stroke", "#000")
-      .style("stroke-width", "3px")
       .selectAll("line")
       .data(this.links)
       .enter().append("line")
+      .attr("marker-end", "url(#arrow)")
       .on('click', (e, d) => { this.handleEdgeMouseClick(e, d); });
 
     let node = this.svg.append("g")
@@ -134,7 +149,7 @@ export class DirectedGraphComponent implements OnInit {
         .attr("x", function (d) { return d.x; })
         .attr("y", function (d) { return d.y; });
     }
-    this.simulation.alphaTarget(0.3);
+    // this.simulation.alphaTarget(0.3);
   }
 
   handleMouseMovement(e) {
@@ -175,20 +190,20 @@ export class DirectedGraphComponent implements OnInit {
       if (element.source != clickedNode) {
         //take elements source and find that node
         d3.selectAll("rect").filter((d: Node) => d.id == (element.source as Node).id).style("fill", "#f00");
-        edgeDOM.style("stroke", "#f00");
+        edgeDOM.style("stroke", "#f00").attr("marker-end", "url(#arrow-in)");
       }
 
       //nodes that clickedNode interacts with
       if (element.target != clickedNode) {
         //take elements target and find that node
         d3.selectAll("rect").filter((d: Node) => (d.id == (element.target as Node).id)).style("fill", "#0f0");
-        edgeDOM.style("stroke", "#0f0");
+        edgeDOM.style("stroke", "#0f0").attr("marker-end", "url(#arrow-out)");
       }
     });
   }
 
-  deselectAll(){
-    d3.selectAll("line").style("stroke", "#000")
-    d3.selectAll("rect").style("fill", "#000")
+  deselectAll() {
+    d3.selectAll("line").style("stroke", "").attr("marker-end", "url(#arrow)");
+    d3.selectAll("rect").style("fill", "");
   }
 }

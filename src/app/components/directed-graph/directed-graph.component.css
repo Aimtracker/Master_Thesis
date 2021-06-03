@@ -1,9 +1,21 @@
 .links line {
   stroke: #000;
+  stroke-width: 3px;
+}
+.arrow {
+  fill: #000;
+}
+.arrow-in {
+  fill: #f00;
 }
 
-.nodes circle {
+.arrow-out {
+  fill: #0f0;
+}
+
+.nodes rect {
   pointer-events: all;
-  stroke: none;
-  stroke-width: 40px;
+  fill: #ccc;
+  stroke: #000;
+  stroke-width: 1.5px;
 }
