@@ -1,4 +1,4 @@
-.links line {
+.link line {
   stroke: #000;
   stroke-width: 3px;
 }
@@ -13,7 +13,11 @@
   fill: #0f0;
 }
 
-.nodes rect {
+.arrow-marked {
+  fill: #ff0;
+}
+
+.node rect {
   pointer-events: all;
   fill: #ccc;
   stroke: #000;
