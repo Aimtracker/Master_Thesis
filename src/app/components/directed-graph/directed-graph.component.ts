@@ -23,7 +23,7 @@ export class DirectedGraphComponent implements OnInit {
 
   private links: Edge[];
 
-  graph:Graph;
+  graph: Graph;
 
   private margin = 50;
   private width = 1000 - (this.margin * 2);
@@ -103,7 +103,7 @@ export class DirectedGraphComponent implements OnInit {
 
     // build the arrow.
     let arrow = this.svg.append("svg:defs").selectAll("marker")
-      .data(["arrow", "arrow-in", "arrow-out", "arrow-marked"])      // Different link/path types can be defined here
+      .data(["arrow", "arrow-in", "arrow-out", "arrow-marked"]) // Different link/path types can be defined here
       .enter().append("svg:marker")    // This section adds in the arrows
       .attr("id", String)
       .attr("viewBox", "0 -5 10 10")
@@ -130,8 +130,7 @@ export class DirectedGraphComponent implements OnInit {
     let node = this.svg.append("g")
       .attr("class", "nodes")
       .selectAll(".node")
-      .data(this.nodes)
-      .enter()
+      .data(this.nodes).enter()
       .append("g")
       .attr("class", "node");
 
@@ -183,6 +182,57 @@ export class DirectedGraphComponent implements OnInit {
     // this.simulation.alphaTarget(0.3);
   }
 
+  updateSvg(): void {
+
+    let link = this.svg.select(".links")
+      .selectAll(".link")
+      .data(this.links, function (d) { return d.source.id + "-" + d.target.id; });
+      console.log(link.data())
+    link.exit().remove();
+    link.enter()
+      .append("g")
+      .attr("class", "link")
+      .append("line")
+      .attr("marker-end", "url(#arrow)")
+      .on('click', (e, d) => { this.handleEdgeMouseClick(e, d); });
+
+    let node = this.svg.select(".nodes")
+      .selectAll(".node")
+      .data(this.nodes, function (d) { return d.id; });
+    node.exit().remove();
+    node.enter()
+      .append("g")
+      .attr("class", "node");
+
+    let rect = node
+      .append("rect")
+      .attr("id", function (d) { return d.id; })
+      .attr("width", this.rectWidth)
+      .attr("height", this.rectHeight)
+      .on('pointermove', (e) => { this.handleMouseMovement(e); })
+      .on('click', (e, d) => { this.handleNodeMouseClick(e, d); });
+    // .call(d3.drag()
+    //   .on("start", (d) => dragstarted(d))
+    //   .on("drag", (d) => dragged(d))
+    //   .on("end", (d) => dragended(d)));
+
+    let label = node.append("text")
+      .text(function (d) { return d.id; })
+      .style("text-anchor", "middle")
+      .style("fill", "#555")
+      .style("font-family", "Arial")
+      .style("font-size", 12);
+
+
+    node.append("title")
+      .text(function (d) { return d.id; });
+
+      this.simulation
+      .nodes(this.nodes)
+      .force("link")
+      .links(this.links);
+  }
+
   handleMouseMovement(e) {
     //console.log('Mm', e);
   }
@@ -193,11 +243,21 @@ export class DirectedGraphComponent implements OnInit {
     console.log('Mc d', d);
     //d.fx = 300;
     //find the target (logical) node. d is a reference to it and can directly manipulate it.
-    this.findNodeNeighbours(d);
+    //this.findNodeNeighbours(d);
     let targetNode = this.nodes.find(n => n.id == d.id);
     if (targetNode) {
       //select node HTMLElement that was clicked on and change fill color
       console.log("sel", d3.select(e.currentTarget).style("fill", "#ff0"));
+      let nodesToShow = this.traverse(this.graph, targetNode);
+      //Clicked node must be pushed, because it isn't included by the traverse method
+      nodesToShow.push(d);
+      let edgesToShow = this.filterEdges(nodesToShow, this.graph.edges);
+      console.log("nodesToShow", nodesToShow);
+      console.log("edgesToShow", edgesToShow);
+      this.nodes = nodesToShow;
+      this.links = edgesToShow;
+      console.log("l", this.l(this.graph, targetNode));
+      this.updateSvg();
     }
   }
 
@@ -212,6 +272,7 @@ export class DirectedGraphComponent implements OnInit {
     d3.selectAll("rect").filter((data: Node) => data.id == d.source.id).style("fill", "#f00");
     //select target and color it green
     d3.selectAll("rect").filter((data: Node) => data.id == d.target.id).style("fill", "#0f0");
+
   }
 
   findNodeNeighbours(clickedNode: Node) {
@@ -241,85 +302,73 @@ export class DirectedGraphComponent implements OnInit {
     d3.selectAll("rect").style("fill", "");
   }
 
+  filterEdges(nodesToShow: Node[], allEdges: Edge[]): Edge[] {
+    if (!nodesToShow && !allEdges) {
+      return [];
+    }
+    return allEdges.filter(e => nodesToShow.find(n => e.source.id == n.id) != undefined && nodesToShow.find(n => e.target.id == n.id) != undefined);
+  }
+
   // NOT MINE
-  // nodeTriggerableByEvent(graph: Graph, node: Node): boolean {
-  //   const edges = graph.inEdges(node);
-  //   return _.some((x) => x.label === EdgeType.EVENT, edges);
-  // }
+  nodeTriggerableByEvent(graph: Graph, node: Node): boolean {
+    const edges = graph.inEdges(node);
+    return _.some((x) => x.label === EdgeType.EVENT, edges);
+  }
 
-  // traverse(
-  //   graph: Graph,
-  //   node: Node,
-  //   visited: Node[] = []
-  // ): Node[] {
-  //   function alreadyVisited(id: Node): boolean {
-  //     return _.find(_.isEqual(id), visited) !== undefined;
-  //   }
+  traverse(
+    graph: Graph,
+    node: Node,
+    visited: Node[] = []
+  ): Node[] {
+    function alreadyVisited(id: Node): boolean {
+      return _.find(_.isEqual(id), visited) !== undefined;
+    }
 
-  //   function inner(id: Node) {
-  //     if (alreadyVisited(id)) return;
-  //     visited.push(id);
+    function inner(id: Node) {
+      if (alreadyVisited(id)) return;
+      visited.push(id);
 
-  //     const reachable = graph
-  //       .outEdges(id)
-  //       .filter((x) => {
-  //         //from Paper
-  //         //"Note that updating the answer does not trigger $scope.check answer(), since this function needs explicit triggering via Check,"
-  //         //is problematic, what if function is called from somewhere? that's why we need call relation
+      const reachable = graph
+        .outEdges(id)
+        .filter((x) => {
+          //from Paper
+          //"Note that updating the answer does not trigger $scope.check answer(), since this function needs explicit triggering via Check,"
+          //is problematic, what if function is called from somewhere? that's why we need call relation
 
-  //         //NOTE possible without calls (need to also check  if source and sink are both methods and let through)
-  //         switch (x.label) {
-  //           case EdgeType.EVENT:
-  //             return false;
-  //           case EdgeType.CALLS:
-  //             return true;
-  //           case EdgeType.SIMPLE:
-  //             //current is not a method, but sink is and it's triggerable by event
-  //             if (this.isMethodNode(x.sink) && this.nodeTriggerableByEvent(graph, x.sink)) {
-  //               return false;
-  //               //property chain or tag or reads relation
-  //             } else return true;
-  //         }
-  //       })
+          //NOTE possible without calls (need to also check  if source and sink are both methods and let through)
+          switch (x.label) {
+            case EdgeType.EVENT:
+              return false;
+            case EdgeType.CALLS:
+              return true;
+            case EdgeType.SIMPLE:
+              //current is not a method, but sink is and it's triggerable by event
+              if (x.target.isMethodNode() /*&& this.nodeTriggerableByEvent(graph, x.target)*/) {
+                return false;
+                //property chain or tag or reads relation
+              } else return true;
+          }
+        })
 
-  //       .map((x) => x.sink);
+        .map((x) => x.target);
 
-  //     //  console.log(`traverse(${id.id}) -> ${reachable.map((x) => x.id)}`);
-  //     reachable?.forEach(inner);
-  //   }
+      //  console.log(`traverse(${id.id}) -> ${reachable.map((x) => x.id)}`);
+      reachable?.forEach(inner);
+    }
 
-  //   //inner is not allowed to travel event edges (and shouldn't be)
-  //   //that's why events are traversed here
-  //   const reachableFromNodeByAnyMeans = graph.outEdges(node);
+    //inner is not allowed to travel event edges (and shouldn't be)
+    //that's why events are traversed here
+    const reachableFromNodeByAnyMeans = graph.outEdges(node);
 
-  //   //if (node.name !== "created") return [];
-  //   reachableFromNodeByAnyMeans.forEach((x) => inner(x.sink));
-  //   return Array.from(visited);
-  // }
+    //if (node.name !== "created") return [];
+    reachableFromNodeByAnyMeans.forEach((x) => inner(x.target));
+    return Array.from(visited);
+  }
 
+  l(graph: Graph, node: Node): Node[] {
+    const preorder = this.traverse(graph, node);
+    return preorder.filter(element => element.isTagNode());
 
-
-  // l(graph: Graph, node: Node): Node[] {
-  //   const preorder = this.traverse(graph, node);
-
-  //   return _.filter(this.isTagNode, preorder);
-  // }
-
-  // outEdges(node: string | Node): Edge[] {
-  //   const nodeId = this.nodeID(node);
-  //   const outEdges = this.outEdges(nodeId);
-  //   if (!outEdges) return [];
-  //   return _.flatMap((x) => lift(this.edge(x.v, x.w)), outEdges);
-  // }
-
-  // /**
-  //  * Returns the incoming edges to the given node
-  //  * @param node node id string or node
-  //  */
-  // inEdges(node: string | Node): Edge[] {
-  //   const nodeId = this.nodeID(node);
-  //   const inEdgesEdges = this.inEdges(nodeId);
-  //   if (!inEdgesEdges) return [];
-  //   return _.flatMap((x) => lift(this.edge(x.v, x.w)), inEdgesEdges);
-  // }
+    //return _.filter(this.isTagNode, preorder);
+  }
 }

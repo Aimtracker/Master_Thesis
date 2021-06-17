@@ -15,11 +15,11 @@ export class Node {
     return Object.assign(o, json);
   }
 
-  isMethodNode(n: Node): boolean {
-    return n.discriminator === NodeType.METHOD;
+  isMethodNode(): boolean {
+    return this.discriminator === NodeType.METHOD;
   }
 
-  isTagNode(n: Node): boolean {
-    return n.discriminator === NodeType.TAG;
+  isTagNode(): boolean {
+    return this.discriminator === NodeType.TAG;
   }
 }

@@ -17,4 +17,32 @@ export class Graph {
       edges: json.edges ? json.edges.map(eJson => Edge.fromJson(eJson)) : null
     });
   }
+
+  outEdges(node: string | Node): Edge[] {
+    const nodeId = this.nodeID(node);
+    let outgoingEdges = this.edges.filter((e: Edge) => (e.source.id == nodeId));
+    return outgoingEdges;
+    // const nodeId = this.nodeID(node);
+    // const outEdges = this.outEdges(nodeId);
+    // if (!outEdges) return [];
+    // return _.flatMap((x) => lift(this.edge(x.v, x.w)), outEdges);
+  }
+
+  /**
+   * Returns the incoming edges to the given node
+   * @param node node id string or node
+   */
+  inEdges(node: string | Node): Edge[] {
+    const nodeId = this.nodeID(node);
+    let incomingEdges = this.edges.filter((e: Edge) => (e.target.id == nodeId));
+    return incomingEdges;
+    // const nodeId = this.nodeID(node);
+    // const inEdgesEdges = this.inEdges(nodeId);
+    // if (!inEdgesEdges) return [];
+    // return _.flatMap((x) => lift(this.edge(x.v, x.w)), inEdgesEdges);
+  }
+
+  private nodeID(nodeOrId: string | Node): string {
+    return  typeof nodeOrId === "string" ? nodeOrId : nodeOrId.id;
+  }
 }
