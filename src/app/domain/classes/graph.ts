@@ -1,6 +1,6 @@
 import { GraphJSON } from '../models/GraphJSON';
 import { Edge } from './edge';
-import { Node } from './node'
+import { Node } from './node';
 import { Options } from './options';
 
 export class Graph {
@@ -43,6 +43,10 @@ export class Graph {
   }
 
   private nodeID(nodeOrId: string | Node): string {
-    return  typeof nodeOrId === "string" ? nodeOrId : nodeOrId.id;
+    return typeof nodeOrId === "string" ? nodeOrId : nodeOrId.id;
+  }
+
+  getEdges() {
+    return this.edges;
   }
 }

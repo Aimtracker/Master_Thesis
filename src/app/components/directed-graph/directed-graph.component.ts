@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 
 import * as d3 from 'd3';
 import { DataService } from 'src/app/services/data.service';
@@ -10,6 +10,9 @@ import { Graph } from 'src/app/domain/classes/graph';
 import { EdgeType, NodeType } from 'src/app/domain/enums/enums';
 import { getCodeString } from 'src/app/utils/utilities';
 import { GraphJSON } from 'src/app/domain/models/GraphJSON';
+import { GraphStore } from 'src/app/domain/stores/graph.store';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-directed-graph',
@@ -19,11 +22,14 @@ import { GraphJSON } from 'src/app/domain/models/GraphJSON';
 })
 export class DirectedGraphComponent implements OnInit {
 
-  nodes: Node[];
+  private nodes: Node[];
 
   private links: Edge[];
 
-  graph: Graph;
+
+  // TODO: move that into state manager
+  isPartialGraphView: boolean = false;
+  isUIView: boolean = false;
 
   private margin = 50;
   private width = 1000 - (this.margin * 2);
@@ -35,16 +41,40 @@ export class DirectedGraphComponent implements OnInit {
   private svg;
   private simulation;
 
-  constructor(private dataService: DataService) { }
+  private ngUnsubscribe = new Subject();
+
+  constructor(private graphStore:GraphStore, private dataService: DataService) { }
 
   ngOnInit(): void {
+    this.svg = d3.select('svg')
+      .attr('width', this.width)
+      .attr('height', this.height)
+      .on('click', (e) => { this.resetSelection(); })
+      .append("g")
+      .attr("transform", "translate(" + this.margin + "," + this.margin + ")")
+      ;
     this.prepareData();
+
+    this.graphStore.state$
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(state => {
+      console.log("State:",state);
+    });
+    this.graphStore.getTestString();
+    this.graphStore.setTestString("newtestString");
   }
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+  }
+
+
 
   private prepareData() {
     this.dataService.getDataJson('assets/test.vue/data.json').subscribe(gData => {
       let graph = Graph.fromJson((gData as GraphJSON));
-      this.graph = graph;
+      this.graphStore.setGraph(graph);
 
       this.dataService.getVueCode('assets/test.vue/test.vue').subscribe(data => {
         graph.nodes.map(e => {
@@ -53,46 +83,31 @@ export class DirectedGraphComponent implements OnInit {
           }
         });
 
-        console.log("Options", graph.options);
-        console.log("Nodes", graph.nodes);
-        console.log("Edges", graph.edges);
+        console.log("Nodes", this.graphStore.state.graph.nodes);
 
 
 
-        this.nodes = graph.nodes;
-        this.links = graph.edges;
-        this.extractUIGraph(graph);
-        this.createSvg();
+        this.nodes = this.graphStore.state.graph.nodes;
+        this.links = this.graphStore.state.graph.edges;
+
+        this.renderSvg();
       });
     });
   }
 
   //Only the Init-Node, Tag-Nodes and nodes they interact with should be visible in this graph
-  private extractUIGraph(fullGraph: Graph) {
-    let newGraph: Graph = new Graph();
-    let newEdges = fullGraph.edges.filter(e => e.label == EdgeType.EVENT);
-    //All nodes of Type TAG or INIT and the nodes that are targets of the event Edges.
-    let newNodes = fullGraph.nodes.filter(e => (e.discriminator == NodeType.TAG || e.discriminator == NodeType.INIT) /*|| e.id == newEdges.find(el => el.target.id == e.id)*/);
-    newGraph.edges = newEdges;
-    newGraph.nodes = newNodes;
-    newGraph.options = fullGraph.options;
-
-    console.log("NG-Nodes", newGraph.nodes);
-    console.log("NG-Edges", newGraph.edges);
-
-    //this.nodes = newGraph.nodes;
-    //this.links = newGraph.edges;
-    //this.nodes = fullGraph.nodes;
-    //this.links = fullGraph.edges;
+  extractUIGraph() {
+    this.graphStore.setUIGraph();
+    this.nodes = this.graphStore.state.uiGraph.nodes;
+    this.links = this.graphStore.state.uiGraph.edges;
+    this.renderSvg();
   }
 
 
-  private createSvg(): void {
-    this.svg = d3.select('svg')
-      .attr('width', this.width)
-      .attr('height', this.height)
-      .append("g")
-      .attr("transform", "translate(" + this.margin + "," + this.margin + ")");
+  private renderSvg(): void {
+    this.graphStore.test();
+    this.svg.selectAll('*').remove();
+
 
     this.simulation = d3.forceSimulation()
       .force("link", d3.forceLink().id((d: any) => { return d.id; }))
@@ -140,14 +155,14 @@ export class DirectedGraphComponent implements OnInit {
       .attr("width", this.rectWidth)
       .attr("height", this.rectHeight)
       .on('pointermove', (e) => { this.handleMouseMovement(e); })
-      .on('click', (e, d) => { this.handleNodeMouseClick(e, d); });
+      .on('click', (e, d) => { e.stopPropagation(); this.handleNodeMouseClick(e, d); });
     // .call(d3.drag()
     //   .on("start", (d) => dragstarted(d))
     //   .on("drag", (d) => dragged(d))
     //   .on("end", (d) => dragended(d)));
 
     let label = node.append("text")
-      .text(function (d) { return d.id; })
+      .text(function (d) { return d.name; })
       .style("text-anchor", "middle")
       .style("fill", "#555")
       .style("font-family", "Arial")
@@ -165,73 +180,78 @@ export class DirectedGraphComponent implements OnInit {
       .links(this.links);
 
     function ticked() {
-      link
-        .attr("x1", function (d) { return d.source.x; })
-        .attr("y1", function (d) { return d.source.y; })
-        .attr("x2", function (d) { return d.target.x; })
-        .attr("y2", function (d) { return d.target.y; });
+      d3.select('svg').select(".links")
+        .selectAll(".link").selectAll("line")
+        .attr("x1", function (d: any) { return d.source.x; })
+        .attr("y1", function (d: any) { return d.source.y; })
+        .attr("x2", function (d: any) { return d.target.x; })
+        .attr("y2", function (d: any) { return d.target.y; });
 
-      rect
-        .attr("x", function (d) { return d.x; })
-        .attr("y", function (d) { return d.y; });
+      d3.select('svg').selectAll("rect")
+        .attr("x", function (d: any) { return d.x; })
+        .attr("y", function (d: any) { return d.y; });
 
-      label
-        .attr("x", function (d) { return d.x + 75; })
-        .attr("y", function (d) { return d.y + 15; });
+      d3.select('svg').selectAll("text")
+        .attr("x", function (d: any) { return d.x + 75; })
+        .attr("y", function (d: any) { return d.y + 15; });
     }
     // this.simulation.alphaTarget(0.3);
   }
 
-  updateSvg(): void {
+  // updateSvg(): void {
 
-    let link = this.svg.select(".links")
-      .selectAll(".link")
-      .data(this.links, function (d) { return d.source.id + "-" + d.target.id; });
-      console.log(link.data())
-    link.exit().remove();
-    link.enter()
-      .append("g")
-      .attr("class", "link")
-      .append("line")
-      .attr("marker-end", "url(#arrow)")
-      .on('click', (e, d) => { this.handleEdgeMouseClick(e, d); });
+  //   let link = this.svg.select(".links")
+  //     .selectAll(".link")
+  //     .data(this.links, function (d) { return d.source.id + "-" + d.target.id; });
+  //   console.log(link.data());
+  //   link.exit().remove();
+  //   link.enter()
+  //     .append("g")
+  //     .attr("class", "link")
+  //     .append("line")
+  //     .attr("marker-end", "url(#arrow)")
+  //     .on('click', (e, d) => { this.handleEdgeMouseClick(e, d); });
+  //   let newLinks = this.svg.select(".links")
+  //     .selectAll(".link").selectAll("line");
 
-    let node = this.svg.select(".nodes")
-      .selectAll(".node")
-      .data(this.nodes, function (d) { return d.id; });
-    node.exit().remove();
-    node.enter()
-      .append("g")
-      .attr("class", "node");
+  //   let node = this.svg.select(".nodes")
+  //     .selectAll(".node")
+  //     .data(this.nodes, function (d) { return d.id; });
+  //   node.exit().remove();
+  //   let newNode = node.enter()
+  //     .append("g")
+  //     .attr("class", "node");
 
-    let rect = node
-      .append("rect")
-      .attr("id", function (d) { return d.id; })
-      .attr("width", this.rectWidth)
-      .attr("height", this.rectHeight)
-      .on('pointermove', (e) => { this.handleMouseMovement(e); })
-      .on('click', (e, d) => { this.handleNodeMouseClick(e, d); });
-    // .call(d3.drag()
-    //   .on("start", (d) => dragstarted(d))
-    //   .on("drag", (d) => dragged(d))
-    //   .on("end", (d) => dragended(d)));
+  //   let rect = newNode
+  //     .append("rect")
+  //     .attr("id", function (d) { return d.id; })
+  //     .attr("width", this.rectWidth)
+  //     .attr("height", this.rectHeight)
+  //     .on('pointermove', (e) => { this.handleMouseMovement(e); })
+  //     .on('click', (e, d) => { this.handleNodeMouseClick(e, d); });
+  //   // .call(d3.drag()
+  //   //   .on("start", (d) => dragstarted(d))
+  //   //   .on("drag", (d) => dragged(d))
+  //   //   .on("end", (d) => dragended(d)));
 
-    let label = node.append("text")
-      .text(function (d) { return d.id; })
-      .style("text-anchor", "middle")
-      .style("fill", "#555")
-      .style("font-family", "Arial")
-      .style("font-size", 12);
+  //   let label = newNode.append("text")
+  //     .text(function (d) { return d.id; })
+  //     .style("text-anchor", "middle")
+  //     .style("fill", "#555")
+  //     .style("font-family", "Arial")
+  //     .style("font-size", 12);
 
 
-    node.append("title")
-      .text(function (d) { return d.id; });
+  //   newNode.append("title")
+  //     .text(function (d) { return d.id; });
 
-      this.simulation
-      .nodes(this.nodes)
-      .force("link")
-      .links(this.links);
-  }
+  //   this.simulation
+  //     .nodes(this.nodes);
+  //   this.simulation.force("link")
+  //     .links(this.links);
+  //   //this.simulation.on("tick", ticked);
+  //   this.simulation.alphaTarget(0.0).restart();
+  // }
 
   handleMouseMovement(e) {
     //console.log('Mm', e);
@@ -247,18 +267,39 @@ export class DirectedGraphComponent implements OnInit {
     let targetNode = this.nodes.find(n => n.id == d.id);
     if (targetNode) {
       //select node HTMLElement that was clicked on and change fill color
-      console.log("sel", d3.select(e.currentTarget).style("fill", "#ff0"));
-      let nodesToShow = this.traverse(this.graph, targetNode);
+
+      let nodesToShow = this.graphStore.traverse(targetNode);
       //Clicked node must be pushed, because it isn't included by the traverse method
       nodesToShow.push(d);
-      let edgesToShow = this.filterEdges(nodesToShow, this.graph.edges);
-      console.log("nodesToShow", nodesToShow);
-      console.log("edgesToShow", edgesToShow);
-      this.nodes = nodesToShow;
-      this.links = edgesToShow;
-      console.log("l", this.l(this.graph, targetNode));
-      this.updateSvg();
+      let edgesToShow = this.filterEdges(nodesToShow, this.graphStore.state.graph.edges);
+
+      //if true, only the partial graph will be rendered
+      if (this.isPartialGraphView) {
+        this.nodes = nodesToShow;
+        this.links = edgesToShow;
+        console.log("l", this.graphStore.l(targetNode));
+        this.renderSvg();
+      }
+
+      //color
+      this.colorNodes(nodesToShow);
+      this.colorEdges(edgesToShow);
+      d3.selectAll("rect").filter((n: Node) => (n.id == (d.id))).style("fill", "#ff0");
     }
+  }
+
+  colorNodes(nodesToColor) {
+    this.deselectAll();
+    nodesToColor.forEach(element => {
+      d3.selectAll("rect").filter((d: Node) => (d.id == (element.id))).style("fill", "#0f0");
+    });
+  }
+
+  colorEdges(edgesToColor) {
+    edgesToColor.forEach(element => {
+      let edgeDOM = d3.selectAll("line").filter((d: Edge) => (d == element));
+      edgeDOM.style("stroke", "#0f0").attr("marker-end", "url(#arrow-out)");
+    });
   }
 
   //e = event, d = (logical) edge that has been clicked on
@@ -273,6 +314,10 @@ export class DirectedGraphComponent implements OnInit {
     //select target and color it green
     d3.selectAll("rect").filter((data: Node) => data.id == d.target.id).style("fill", "#0f0");
 
+  }
+
+  toggleIsPartialGraphView() {
+    this.isPartialGraphView = !this.isPartialGraphView;
   }
 
   findNodeNeighbours(clickedNode: Node) {
@@ -309,66 +354,14 @@ export class DirectedGraphComponent implements OnInit {
     return allEdges.filter(e => nodesToShow.find(n => e.source.id == n.id) != undefined && nodesToShow.find(n => e.target.id == n.id) != undefined);
   }
 
-  // NOT MINE
-  nodeTriggerableByEvent(graph: Graph, node: Node): boolean {
-    const edges = graph.inEdges(node);
-    return _.some((x) => x.label === EdgeType.EVENT, edges);
-  }
 
-  traverse(
-    graph: Graph,
-    node: Node,
-    visited: Node[] = []
-  ): Node[] {
-    function alreadyVisited(id: Node): boolean {
-      return _.find(_.isEqual(id), visited) !== undefined;
+  resetSelection() {
+    if (this.isPartialGraphView) {
+      this.nodes = this.graphStore.state.graph.nodes;
+      this.links = this.graphStore.state.graph.edges;
+      this.renderSvg();
+    } else {
+      this.deselectAll();
     }
-
-    function inner(id: Node) {
-      if (alreadyVisited(id)) return;
-      visited.push(id);
-
-      const reachable = graph
-        .outEdges(id)
-        .filter((x) => {
-          //from Paper
-          //"Note that updating the answer does not trigger $scope.check answer(), since this function needs explicit triggering via Check,"
-          //is problematic, what if function is called from somewhere? that's why we need call relation
-
-          //NOTE possible without calls (need to also check  if source and sink are both methods and let through)
-          switch (x.label) {
-            case EdgeType.EVENT:
-              return false;
-            case EdgeType.CALLS:
-              return true;
-            case EdgeType.SIMPLE:
-              //current is not a method, but sink is and it's triggerable by event
-              if (x.target.isMethodNode() /*&& this.nodeTriggerableByEvent(graph, x.target)*/) {
-                return false;
-                //property chain or tag or reads relation
-              } else return true;
-          }
-        })
-
-        .map((x) => x.target);
-
-      //  console.log(`traverse(${id.id}) -> ${reachable.map((x) => x.id)}`);
-      reachable?.forEach(inner);
-    }
-
-    //inner is not allowed to travel event edges (and shouldn't be)
-    //that's why events are traversed here
-    const reachableFromNodeByAnyMeans = graph.outEdges(node);
-
-    //if (node.name !== "created") return [];
-    reachableFromNodeByAnyMeans.forEach((x) => inner(x.target));
-    return Array.from(visited);
-  }
-
-  l(graph: Graph, node: Node): Node[] {
-    const preorder = this.traverse(graph, node);
-    return preorder.filter(element => element.isTagNode());
-
-    //return _.filter(this.isTagNode, preorder);
   }
 }

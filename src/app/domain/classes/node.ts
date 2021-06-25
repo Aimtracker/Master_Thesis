@@ -22,4 +22,12 @@ export class Node {
   isTagNode(): boolean {
     return this.discriminator === NodeType.TAG;
   }
+
+  isInitNode(): boolean {
+    return this.discriminator === NodeType.INIT;
+  }
+
+  isDataNode(): boolean {
+    return this.discriminator === NodeType.DATA;
+  }
 }
