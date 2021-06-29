@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { DirectedGraphComponent } from './components/directed-graph/directed-graph.component';
 
 import { HttpClientModule } from '@angular/common/http';
+import { HighlightService } from './services/highlight.service';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,7 @@ import { HttpClientModule } from '@angular/common/http';
     AppRoutingModule,
     HttpClientModule
   ],
-  providers: [],
+  providers: [HighlightService,],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

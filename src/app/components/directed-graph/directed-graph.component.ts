@@ -13,6 +13,7 @@ import { GraphJSON } from 'src/app/domain/models/GraphJSON';
 import { GraphStore } from 'src/app/domain/stores/graph.store';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { HighlightService } from 'src/app/services/highlight.service';
 
 @Component({
   selector: 'app-directed-graph',
@@ -20,11 +21,13 @@ import { takeUntil } from 'rxjs/operators';
   styleUrls: ['./directed-graph.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class DirectedGraphComponent implements OnInit {
+export class DirectedGraphComponent implements OnInit, OnDestroy {
 
   private nodes: Node[];
 
   private links: Edge[];
+
+  fullCodeString:string = "";
 
 
   // TODO: move that into state manager
@@ -43,7 +46,7 @@ export class DirectedGraphComponent implements OnInit {
 
   private ngUnsubscribe = new Subject();
 
-  constructor(private graphStore:GraphStore, private dataService: DataService) { }
+  constructor(private graphStore: GraphStore, private dataService: DataService, private highlightService: HighlightService) { }
 
   ngOnInit(): void {
     this.svg = d3.select('svg')
@@ -56,10 +59,10 @@ export class DirectedGraphComponent implements OnInit {
     this.prepareData();
 
     this.graphStore.state$
-    .pipe(takeUntil(this.ngUnsubscribe))
-    .subscribe(state => {
-      console.log("State:",state);
-    });
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe(state => {
+        console.log("State:", state);
+      });
     this.graphStore.getTestString();
     this.graphStore.setTestString("newtestString");
   }
@@ -77,6 +80,7 @@ export class DirectedGraphComponent implements OnInit {
       this.graphStore.setGraph(graph);
 
       this.dataService.getVueCode('assets/test.vue/test.vue').subscribe(data => {
+        this.fullCodeString = data;
         graph.nodes.map(e => {
           if (e.discriminator == NodeType.TAG) {
             e.loc.codeString = getCodeString(data, e.loc.start, e.loc.end);
@@ -91,6 +95,7 @@ export class DirectedGraphComponent implements OnInit {
         this.links = this.graphStore.state.graph.edges;
 
         this.renderSvg();
+        console.log(this.highlightService.highlight(this.fullCodeString));
       });
     });
   }
