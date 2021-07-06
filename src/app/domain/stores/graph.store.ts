@@ -21,10 +21,6 @@ export class GraphStore extends Store<GraphStoreState>{
     super(new GraphStoreState());
   }
 
-  test() {
-    console.log("test");
-  }
-
   getTestString(): string {
     return this.state.testString;
   }

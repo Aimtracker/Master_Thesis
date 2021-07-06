@@ -27,7 +27,11 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
 
   private links: Edge[];
 
-  fullCodeString:string = "";
+  showCodeView: boolean = true;
+  fullCodeString: string = "";
+  linesToHighlight: string = "";
+  pathToVueFile: string = 'assets/test.vue/test.vue';
+  pathToJsonFile: string = 'assets/test.vue/data.json';
 
 
   // TODO: move that into state manager
@@ -42,6 +46,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   private rectWidth = 150;
 
   private svg;
+  private zoomContainer;
   private simulation;
 
   private ngUnsubscribe = new Subject();
@@ -53,9 +58,9 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       .attr('width', this.width)
       .attr('height', this.height)
       .on('click', (e) => { this.resetSelection(); })
-      .append("g")
-      .attr("transform", "translate(" + this.margin + "," + this.margin + ")")
-      ;
+      this.zoomContainer = this.svg.call(d3.zoom().on("zoom", (e)=> {
+        this.zoomContainer.attr("transform", e.transform)
+    })).append("g")
     this.prepareData();
 
     this.graphStore.state$
@@ -63,9 +68,11 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       .subscribe(state => {
         console.log("State:", state);
       });
+      //TODO: Remove this
     this.graphStore.getTestString();
     this.graphStore.setTestString("newtestString");
   }
+
 
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
@@ -75,11 +82,11 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
 
 
   private prepareData() {
-    this.dataService.getDataJson('assets/test.vue/data.json').subscribe(gData => {
+    this.dataService.getDataJson(this.pathToJsonFile).subscribe(gData => {
       let graph = Graph.fromJson((gData as GraphJSON));
       this.graphStore.setGraph(graph);
 
-      this.dataService.getVueCode('assets/test.vue/test.vue').subscribe(data => {
+      this.dataService.getVueCode(this.pathToVueFile).subscribe(data => {
         this.fullCodeString = data;
         graph.nodes.map(e => {
           if (e.discriminator == NodeType.TAG) {
@@ -95,7 +102,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
         this.links = this.graphStore.state.graph.edges;
 
         this.renderSvg();
-        console.log(this.highlightService.highlight(this.fullCodeString));
+        this.highlightService.highlightAll();
       });
     });
   }
@@ -110,8 +117,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
 
 
   private renderSvg(): void {
-    this.graphStore.test();
-    this.svg.selectAll('*').remove();
+    this.svg.select('g').selectAll('*').remove();
 
 
     this.simulation = d3.forceSimulation()
@@ -122,7 +128,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       .force("y", d3.forceY());
 
     // build the arrow.
-    let arrow = this.svg.append("svg:defs").selectAll("marker")
+    let arrow = this.zoomContainer.append("svg:defs").selectAll("marker")
       .data(["arrow", "arrow-in", "arrow-out", "arrow-marked"]) // Different link/path types can be defined here
       .enter().append("svg:marker")    // This section adds in the arrows
       .attr("id", String)
@@ -136,7 +142,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       .append("svg:path")
       .attr("d", "M0,-5L10,0L0,5");
 
-    let link = this.svg.append("g")
+    let link = this.zoomContainer.append("g")
       .attr("class", "links")
       .selectAll(".line")
       .data(this.links)
@@ -145,9 +151,9 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       .attr("class", "link")
       .append("line")
       .attr("marker-end", "url(#arrow)")
-      .on('click', (e, d) => { this.handleEdgeMouseClick(e, d); });
+      .on('click', (e, d) => { /*this.handleEdgeMouseClick(e, d);*/ });
 
-    let node = this.svg.append("g")
+    let node = this.zoomContainer.append("g")
       .attr("class", "nodes")
       .selectAll(".node")
       .data(this.nodes).enter()
@@ -290,6 +296,9 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       this.colorNodes(nodesToShow);
       this.colorEdges(edgesToShow);
       d3.selectAll("rect").filter((n: Node) => (n.id == (d.id))).style("fill", "#ff0");
+
+      //highlight lines if given
+      this.highlightLinesInCode(d);
     }
   }
 
@@ -307,18 +316,51 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
     });
   }
 
-  //e = event, d = (logical) edge that has been clicked on
-  handleEdgeMouseClick(e, d) {
-    console.log('Mc e', e);
-    console.log('Mc d', d);
-    this.deselectAll();
-    //select node HTMLElement that was clicked on and change fill color
-    d3.select(e.currentTarget).style("stroke", "#ff0").attr("marker-end", "url(#arrow-marked)");
-    //select source and color it red
-    d3.selectAll("rect").filter((data: Node) => data.id == d.source.id).style("fill", "#f00");
-    //select target and color it green
-    d3.selectAll("rect").filter((data: Node) => data.id == d.target.id).style("fill", "#0f0");
+  highlightLinesInCode(node: Node) {
+    let nodeLoc = node.loc;
+    if (nodeLoc) {
+      let from = nodeLoc.start.line;
+      let to = nodeLoc.end.line;
+      this.linesToHighlight = from + "-" + to;
+      this.refreshCodeView();
+    } else {
+      this.resetHighlightedLinesInCode();
+    }
+  }
 
+  resetHighlightedLinesInCode(){
+    this.linesToHighlight = "";
+    this.refreshCodeView();
+  }
+
+  refreshCodeView(){
+    setTimeout(() => {
+      //Give Angular a fraction of a second to properly show the elements, then refresh prismjs
+      this.highlightService.highlightAll();
+    }, 10);
+  }
+
+  //e = event, d = (logical) edge that has been clicked on
+  // handleEdgeMouseClick(e, d) {
+  //   console.log('Mc e', e);
+  //   console.log('Mc d', d);
+  //   this.deselectAll();
+  //   //select node HTMLElement that was clicked on and change fill color
+  //   d3.select(e.currentTarget).style("stroke", "#ff0").attr("marker-end", "url(#arrow-marked)");
+  //   //select source and color it red
+  //   d3.selectAll("rect").filter((data: Node) => data.id == d.source.id).style("fill", "#f00");
+  //   //select target and color it green
+  //   d3.selectAll("rect").filter((data: Node) => data.id == d.target.id).style("fill", "#0f0");
+
+  // }
+
+  toggleUIView() {
+    if (this.isUIView) {
+      this.resetGraph();
+    } else {
+      this.extractUIGraph();
+    }
+    this.isUIView = !this.isUIView;
   }
 
   toggleIsPartialGraphView() {
@@ -361,12 +403,25 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
 
 
   resetSelection() {
-    if (this.isPartialGraphView) {
-      this.nodes = this.graphStore.state.graph.nodes;
-      this.links = this.graphStore.state.graph.edges;
-      this.renderSvg();
+    if (this.isPartialGraphView && !this.isUIView) {
+      this.resetGraph();
+    } else if (this.isPartialGraphView && this.isUIView) {
+      this.extractUIGraph();
     } else {
       this.deselectAll();
     }
+    this.resetHighlightedLinesInCode();
+  }
+
+  resetGraph() {
+    this.nodes = this.graphStore.state.graph.nodes;
+    this.links = this.graphStore.state.graph.edges;
+    this.renderSvg();
+    this.resetHighlightedLinesInCode();
+  }
+
+  toggleCodeView() {
+    this.showCodeView = !this.showCodeView;
+    this.refreshCodeView();
   }
 }

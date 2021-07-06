@@ -29,8 +29,4 @@ export class HighlightService {
       Prism.highlightAll();
     }
   }
-
-  highlight(fullCode){
-    //return Prism.highlight(fullCode, Prism.languages["typescript"])
-  }
 }
