@@ -7,11 +7,13 @@ import { DirectedGraphComponent } from './components/directed-graph/directed-gra
 
 import { HttpClientModule } from '@angular/common/http';
 import { HighlightService } from './services/highlight.service';
+import { CodeViewComponent } from './components/code-view/code-view.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    DirectedGraphComponent
+    DirectedGraphComponent,
+    CodeViewComponent
   ],
   imports: [
     BrowserModule,

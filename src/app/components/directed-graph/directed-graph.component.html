@@ -5,9 +5,5 @@
 <button (click)="toggleCodeView()">Show Code View</button>
 <svg></svg>
 <div *ngIf="showCodeView">
-  <pre
-    [attr.data-line]="linesToHighlight"
-    [attr.data-src]="pathToVueFile"
-    class="line-numbers language-javascript"
-  ><code></code></pre>
+  <code-view></code-view>
 </div>

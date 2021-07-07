@@ -6,10 +6,13 @@ import { Graph } from '../classes/graph';
 import { EdgeType, NodeType } from '../enums/enums';
 import { Store } from './store';
 import _ from "lodash/fp";
+import { HighlightService } from 'src/app/services/highlight.service';
 
 export class GraphStoreState {
   graph: Graph = null;
   uiGraph: Graph = null;
+
+  linesToHighlight: string = "";
   testString: string = "empty";
 }
 
@@ -17,7 +20,7 @@ export class GraphStoreState {
   providedIn: 'root'
 })
 export class GraphStore extends Store<GraphStoreState>{
-  constructor(private dataService: DataService) {
+  constructor(private dataService: DataService, private highlightService: HighlightService) {
     super(new GraphStoreState());
   }
 
@@ -39,6 +42,11 @@ export class GraphStore extends Store<GraphStoreState>{
     });
   }
 
+  /**
+  * Extracts the UIGraph that contains only nodes of type TAG and INIT.
+  * It filters the nodes that should be part of the UIGraph and then filters with which TAG or INIT nodes they interact.
+  * Then edges are generated between them so form the UIGraph. The UIGraph is set at the end.
+  */
   setUIGraph() {
     let newGraph: Graph = new Graph();
     //let newEdges = fullGraph.edges.filter(e => e.label == EdgeType.EVENT);
@@ -48,6 +56,7 @@ export class GraphStore extends Store<GraphStoreState>{
     let newEdges: Edge[] = [];
     filteredNodes.forEach(element => {
       let traversedNodes = this.l(element);
+      console.log("L", traversedNodes)
       newEdges = newEdges.concat(this.generateUIEdges(element, traversedNodes));
     });
     newGraph.options = this.state.graph.options;
@@ -60,6 +69,12 @@ export class GraphStore extends Store<GraphStoreState>{
     });
   }
 
+  /**
+  * Generates edges between n and nodes, where n is the source and every element
+  * of nodes is the target.
+  * @param n is the node that interacts with other nodes.
+  * @param nodes are the nodes that n interacts with.
+  */
   generateUIEdges(n: Node, nodes: Node[]): Edge[] {
     let newEdges: Edge[] = [];
     nodes.forEach((element) => {
@@ -74,6 +89,13 @@ export class GraphStore extends Store<GraphStoreState>{
 
 
 
+  /**
+  * Traverses the graph and finds every node that n interacts with plus the nodes they interact with and so on.
+  * An array of all nodes where interactions are possible based from node is returned.
+  * @param node is the node from which the method starts to traverse.
+  * @param visited are all the nodes that were already visited.
+  * @returns An array of all nodes where interactions are possible based from node.
+  */
   traverse(
     node: Node,
     visited: Node[] = []
@@ -130,11 +152,58 @@ export class GraphStore extends Store<GraphStoreState>{
     return Array.from(visited);
   }
 
+  /**
+  * Traverses the graph and returns which TAG or INIT nodes node interacts with.
+  * @param node is the node from which the method starts to traverse.
+  * @returns an array of nodes with TAG or INIT nodes node interacts with.
+  */
   l(node: Node): Node[] {
     const preorder = this.traverse(node);
     return preorder.filter(element => element.isTagNode() || element.isInitNode());
 
     //return _.filter(this.isTagNode, preorder);
+  }
+
+  /**
+  * Highlights lines of code in the code-view-component based on the given node.
+  * If the node does not contain a loc object inside of it, nothing will be highlighted
+  * and/or already highlighted lines will be un-highlighted.
+  * @param node is a node that contains the lines that should be highlighted.
+  */
+  highlightLinesInCode(node: Node) {
+    let nodeLoc = node.loc;
+    if (nodeLoc) {
+      let from = nodeLoc.start.line;
+      let to = nodeLoc.end.line;
+      this.setState({
+        ...this.state,
+        linesToHighlight: from + "-" + to
+      });
+      this.refreshCodeView();
+    } else {
+      this.resetHighlightedLinesInCode();
+    }
+  }
+
+  /**
+  * Resets all the highlighted lines in the code-view-component.
+  */
+  resetHighlightedLinesInCode() {
+    this.setState({
+      ...this.state,
+      linesToHighlight: ""
+    });
+    this.refreshCodeView();
+  }
+
+  /**
+  * Rerenders the code-view-component.
+  */
+  refreshCodeView() {
+    setTimeout(() => {
+      //Give Angular a fraction of a second to properly show the elements, then refresh prismjs
+      this.highlightService.highlightAll();
+    }, 10);
   }
 
 }
