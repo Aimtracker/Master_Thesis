@@ -17,6 +17,22 @@
   fill: #ff0;
 }
 
+.node-text {
+  font-family: "Roboto", sans-serif;
+  font-size: 1em;
+  text-anchor: middle;
+  alignment-baseline: middle;
+  pointer-events: none;
+  /* Disable text selection
+     from http://stackoverflow.com/questions/826782/css-rule-to-disable-text-selection-highlighting */
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;
+}
+
 .node rect {
   pointer-events: all;
   fill: #ccc;

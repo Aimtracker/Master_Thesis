@@ -9,6 +9,7 @@ export class Node {
   discriminator: NodeType;
   parent: string;
   type: IdentifierType;
+  group: number;
 
   static fromJson(json: NodeValueJSON): Node {
     const o = Object.create(Node.prototype);

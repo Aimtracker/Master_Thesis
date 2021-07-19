@@ -206,4 +206,20 @@ export class GraphStore extends Store<GraphStoreState>{
     }, 10);
   }
 
+  something(){
+    let tmpGraph = this.state.graph;
+    tmpGraph.nodes.forEach(element => {
+      if(element.isTagNode()){
+        element.group = 1;
+      }else{
+        element.group = 2;
+      }
+    });
+
+    this.setState({
+      ...this.state,
+      graph: tmpGraph
+    })
+  }
+
 }

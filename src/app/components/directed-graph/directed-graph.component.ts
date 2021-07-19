@@ -40,6 +40,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   private width = 1000 - (this.margin * 2);
   private height = 1000 - (this.margin * 2);
 
+  private nodeSize: number = 20.0;
   private rectHeight = 25;
   private rectWidth = 150;
 
@@ -66,9 +67,6 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       .subscribe(state => {
         console.log("State:", state);
       });
-    //TODO: Remove this
-    this.graphStore.getTestString();
-    this.graphStore.setTestString("newtestString");
   }
 
 
@@ -133,14 +131,15 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       .enter().append("svg:marker")    // This section adds in the arrows
       .attr("id", String)
       .attr("viewBox", "0 -5 10 10")
-      .attr("refX", 15)
-      .attr("refY", -1.5)
+      .attr("refX", 10)
+      .attr("refY", 0)
       .attr("markerWidth", 6)
       .attr("markerHeight", 6)
       .attr("orient", "auto")
       .attr("class", (d) => d)
       .append("svg:path")
       .attr("d", "M0,-5L10,0L0,5");
+
 
     let link = this.zoomContainer.append("g")
       .attr("class", "links")
@@ -160,53 +159,176 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       .append("g")
       .attr("class", "node");
 
-    let rect = node
-      .append("rect")
-      .attr("id", function (d) { return d.id; })
-      .attr("width", this.rectWidth)
-      .attr("height", this.rectHeight)
-      .on('pointermove', (e) => { this.handleMouseMovement(e); })
-      .on('click', (e, d) => { e.stopPropagation(); this.handleNodeMouseClick(e, d); });
+
+
+    // let rect = node
+    //   .append("rect")
+    //   .attr("id", function (d) { return d.id; })
+    //   .attr("width", this.rectWidth)
+    //   .attr("height", this.rectHeight)
+    //   .on('pointermove', (e) => { this.handleMouseMovement(e); })
+    //   .on('click', (e, d) => { e.stopPropagation(); this.handleNodeMouseClick(e, d); });
     // .call(d3.drag()
     //   .on("start", (d) => dragstarted(d))
     //   .on("drag", (d) => dragged(d))
     //   .on("end", (d) => dragended(d)));
 
-    let label = node.append("text")
-      .text(function (d) { return d.name; })
-      .style("text-anchor", "middle")
-      .style("fill", "#555")
-      .style("font-family", "Arial")
-      .style("font-size", 12);
+    let rect = node
+      .append("rect")
+      .attr("id", function (d) { return d.id; })
+      .attr("y", -this.nodeSize)
+      .attr("height", this.nodeSize * 2)
+      .attr("rx", this.nodeSize)
+      .attr("ry", this.nodeSize)
+      .on('pointermove', (e) => { this.handleMouseMovement(e); })
+      .on('click', (e, d) => { e.stopPropagation(); this.handleNodeMouseClick(e, d); })
+      .on("dblclick", (e, d) => { e.stopPropagation(); this.handleNodeMouseDoubleClick(e, d); })
+      .call(d3.drag()
+        .on("drag", (e, d) => this.dragged(e, d))
+        .on("end", (e, d) => this.dragended(e, d)));
 
+
+    // let label = node.append("text")
+    //   .text(function (d) { return d.name; })
+    //   .style("text-anchor", "middle")
+    //   .style("fill", "#555")
+    //   .style("font-family", "Arial")
+    //   .style("font-size", 12);
+
+    let label = node.append("text")
+      .attr("class", "node-text")
+      .text(function (d) { return d.name; })
+      .each((d, i, n) => {
+        var textEl = d3.select(n[i]);
+        var circleWidth = this.nodeSize * 2,
+          textLength = textEl.node().getComputedTextLength(),
+          textWidth = textLength + this.nodeSize;
+        d.nodeSize = this.nodeSize;
+        d.rectHeight = this.nodeSize * 2;
+        if (circleWidth > textWidth) {
+          d.isCircle = true;
+          d.rectX = -this.nodeSize;
+          d.rectWidth = circleWidth;
+        } else {
+          d.isCircle = false;
+          d.rectX = -(textLength + this.nodeSize) / 2;
+          d.rectWidth = textWidth;
+          d.textLength = textLength;
+        }
+      });
+
+    node.select("rect")
+      .attr("x", function (d) { return d.rectX; })
+      .attr("width", function (d) { return d.rectWidth; });
 
     node.append("title")
       .text(function (d) { return d.id; });
 
     this.simulation
       .nodes(this.nodes)
-      .on("tick", ticked);
+      .on("tick", this.ticked)
+      //.alphaDecay(0);
 
     this.simulation.force("link")
       .links(this.links);
 
-    function ticked() {
-      d3.select('svg').select(".links")
-        .selectAll(".link").selectAll("line")
-        .attr("x1", function (d: any) { return d.source.x; })
-        .attr("y1", function (d: any) { return d.source.y; })
-        .attr("x2", function (d: any) { return d.target.x; })
-        .attr("y2", function (d: any) { return d.target.y; });
 
-      d3.select('svg').selectAll("rect")
-        .attr("x", function (d: any) { return d.x; })
-        .attr("y", function (d: any) { return d.y; });
-
-      d3.select('svg').selectAll("text")
-        .attr("x", function (d: any) { return d.x + 75; })
-        .attr("y", function (d: any) { return d.y + 15; });
-    }
     // this.simulation.alphaTarget(0.3);
+  }
+
+
+  ticked() {
+
+    d3.selectAll("rect").each((d: any) => {
+      if (d.isCircle) {
+        d.leftX = d.rightX = d.x;
+      } else {
+        d.leftX = d.x - d.textLength / 2 + d.nodeSize / 2;
+        d.rightX = d.x + d.textLength / 2 - d.nodeSize / 2;
+      }
+    });
+
+    d3.select('svg').select(".links")
+      .selectAll(".link").selectAll("line")
+      .attr("x1", function (d: any) { return d.source.x; })
+      .attr("y1", function (d: any) { return d.source.y; })
+      .attr("x2", function (d: any) { return d.target.x; })
+      .attr("y2", function (d: any) { return d.target.y; });
+
+    // d3.select('svg').selectAll("rect")
+    //   .attr("x", function (d: any) { return d.x; })
+    //   .attr("y", function (d: any) { return d.y; });
+
+    d3.select('svg').selectAll(".node")
+      .attr("transform", function (d: any) {
+        return "translate(" + d.x + "," + d.y + ")";
+      });
+
+    // d3.select('svg').selectAll("text")
+    //   .attr("x", function (d: any) { console.log("dx", d);return d.x; })
+    //   .attr("y", function (d: any) { console.log("dy", d);return d.y + d.nodeSize; });
+    d3.select('svg').selectAll("line").call(edge);
+
+    // Sets the (x1, y1, x2, y2) line properties for graph edges.
+    function edge(selection) {
+      selection
+        .each(function (d) {
+          var sourceX, targetX, midX, dx, dy, angle;
+
+          // This mess makes the arrows exactly perfect.
+          if (d.source.rightX < d.target.leftX) {
+            sourceX = d.source.rightX;
+            targetX = d.target.leftX;
+          } else if (d.target.rightX < d.source.leftX) {
+            targetX = d.target.rightX;
+            sourceX = d.source.leftX;
+          } else if (d.target.isCircle) {
+            targetX = sourceX = d.target.x;
+          } else if (d.source.isCircle) {
+            targetX = sourceX = d.source.x;
+          } else {
+            midX = (d.source.x + d.target.x) / 2;
+            if (midX > d.target.rightX) {
+              midX = d.target.rightX;
+            } else if (midX > d.source.rightX) {
+              midX = d.source.rightX;
+            } else if (midX < d.target.leftX) {
+              midX = d.target.leftX;
+            } else if (midX < d.source.leftX) {
+              midX = d.source.leftX;
+            }
+            targetX = sourceX = midX;
+          }
+
+          dx = targetX - sourceX;
+          dy = d.target.y - d.source.y;
+          angle = Math.atan2(dx, dy);
+          var nodeSize = 20;
+
+          // Compute the line endpoint such that the arrow
+          // is touching the edge of the node rectangle perfectly.
+          d.sourceX = sourceX + Math.sin(angle) * nodeSize;
+          d.targetX = targetX - Math.sin(angle) * nodeSize;
+          d.sourceY = d.source.y + Math.cos(angle) * nodeSize;
+          d.targetY = d.target.y - Math.cos(angle) * nodeSize;
+        })
+        .attr("x1", function (d) { return d.sourceX; })
+        .attr("y1", function (d) { return d.sourceY; })
+        .attr("x2", function (d) { return d.targetX; })
+        .attr("y2", function (d) { return d.targetY; });
+    }
+  }
+
+  dragged(e, d) {
+    this.simulation.alpha(0.1).restart();
+    d.fx = e.x;
+    d.fy = e.y;
+  }
+
+  dragended(e, d) {
+    this.simulation.alpha(0.1).restart();
+    d.fx = e.x;
+    d.fy = e.y;
   }
 
   /**
@@ -214,6 +336,12 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
     */
   handleMouseMovement(e) {
     //console.log('Mm', e);
+  }
+
+  handleNodeMouseDoubleClick(e, d) {
+    this.simulation.alpha(0.1).restart();
+    d.fx = undefined
+    d.fy = undefined
   }
 
   /**
@@ -292,7 +420,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   colorEdges(edgesToColor, color) {
     edgesToColor.forEach(element => {
       let edgeDOM = d3.selectAll("line").filter((d: Edge) => (d == element));
-      console.log("called baby", edgeDOM)
+      console.log("called baby", edgeDOM);
       edgeDOM.style("stroke", color).attr("marker-end", "url(#arrow-out)");
     });
   }
@@ -373,5 +501,10 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   toggleCodeView() {
     this.showCodeView = !this.showCodeView;
     this.graphStore.refreshCodeView();
+  }
+
+  stuff() {
+    this.graphStore.something();
+    this.renderSvg();
   }
 }
