@@ -149,6 +149,12 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       .append("g")
       .attr("class", "link")
       .append("line")
+      .attr("class", (d) => {
+        if (d.label == "event")
+          return "thick";
+        else if (d.label == "simple")
+          return "dotted";
+      })
       .attr("marker-end", "url(#arrow)")
       .on('click', (e, d) => { e.stopPropagation(); this.handleEdgeMouseClick(e, d); });
 
@@ -196,7 +202,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
     //   .style("font-size", 12);
 
     let label = node.append("text")
-      .attr("class", "node-text")
+      .attr("class", (d) => { return d.loc ? "node-text node-text-top" : "node-text"; })
       .text(function (d) { return d.name; })
       .each((d, i, n) => {
         var textEl = d3.select(n[i]);
@@ -218,7 +224,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       });
 
     let posLabel = node.append("text")
-      .attr("class", "pos-text")
+      .attr("class", (d) => { return d.loc ? "node-text node-text-bottom" : "node-text"; })
       .text(function (d) {
         if (d.loc) {
           if (d.loc.start.line == d.loc.end.line) {
@@ -232,25 +238,24 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       })
       .each((d, i, n) => {
         if (d.loc) {
-          console.log(d)
           var textEl = d3.select(n[i]);
           var circleWidth = this.nodeSize * 2,
             textLength = textEl.node().getComputedTextLength(),
             textWidth = textLength + this.nodeSize;
-            if(textLength > d.textLength){
-              d.nodeSize = this.nodeSize;
-              d.rectHeight = this.nodeSize * 2;
-              if (circleWidth > textWidth) {
-                d.isCircle = true;
-                d.rectX = -this.nodeSize;
-                d.rectWidth = circleWidth;
-              } else {
-                d.isCircle = false;
-                d.rectX = -(textLength + this.nodeSize) / 2;
-                d.rectWidth = textWidth;
-                d.textLength = textLength;
-              }
+          if (textLength > d.textLength) {
+            d.nodeSize = this.nodeSize;
+            d.rectHeight = this.nodeSize * 2;
+            if (circleWidth > textWidth) {
+              d.isCircle = true;
+              d.rectX = -this.nodeSize;
+              d.rectWidth = circleWidth;
+            } else {
+              d.isCircle = false;
+              d.rectX = -(textLength + this.nodeSize) / 2;
+              d.rectWidth = textWidth;
+              d.textLength = textLength;
             }
+          }
         }
       });
 

@@ -1,7 +1,16 @@
 .link line {
   stroke: #000;
-  stroke-width: 3px;
+  stroke-width: 1.5px;
 }
+
+.dotted {
+  stroke-dasharray:10, 10;
+}
+
+.thick {
+  stroke-width: 3px !important;
+}
+
 .arrow {
   fill: #000;
 }
@@ -21,7 +30,7 @@
   font-family: "Roboto", sans-serif;
   font-size: 1em;
   text-anchor: middle;
-  alignment-baseline: after-edge;
+  alignment-baseline: middle;
   pointer-events: none;
   /* Disable text selection
      from http://stackoverflow.com/questions/826782/css-rule-to-disable-text-selection-highlighting */
@@ -33,20 +42,12 @@
   user-select: none;
 }
 
-.pos-text {
-  font-family: "Roboto", sans-serif;
-  font-size: 1em;
-  text-anchor: middle;
-  alignment-baseline: before-edge;
-  pointer-events: none;
-  /* Disable text selection
-     from http://stackoverflow.com/questions/826782/css-rule-to-disable-text-selection-highlighting */
-  -webkit-touch-callout: none; /* iOS Safari */
-  -webkit-user-select: none;   /* Chrome/Safari/Opera */
-  -khtml-user-select: none;    /* Konqueror */
-  -moz-user-select: none;      /* Firefox */
-  -ms-user-select: none;       /* Internet Explorer/Edge */
-  user-select: none;
+.node-text-top{
+  alignment-baseline: after-edge !important;
+}
+
+.node-text-bottom{
+  alignment-baseline: before-edge !important;
 }
 
 .node rect {
