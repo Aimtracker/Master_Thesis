@@ -217,6 +217,44 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
         }
       });
 
+    let posLabel = node.append("text")
+      .attr("class", "pos-text")
+      .text(function (d) {
+        if (d.loc) {
+          if (d.loc.start.line == d.loc.end.line) {
+            return "h: " + d.loc.start.line;
+          } else {
+            return "h: " + d.loc.start.line + "-" + d.loc.end.line;
+          }
+        } else {
+          return "";
+        }
+      })
+      .each((d, i, n) => {
+        if (d.loc) {
+          console.log(d)
+          var textEl = d3.select(n[i]);
+          var circleWidth = this.nodeSize * 2,
+            textLength = textEl.node().getComputedTextLength(),
+            textWidth = textLength + this.nodeSize;
+            if(textLength > d.textLength){
+              d.nodeSize = this.nodeSize;
+              d.rectHeight = this.nodeSize * 2;
+              if (circleWidth > textWidth) {
+                d.isCircle = true;
+                d.rectX = -this.nodeSize;
+                d.rectWidth = circleWidth;
+              } else {
+                d.isCircle = false;
+                d.rectX = -(textLength + this.nodeSize) / 2;
+                d.rectWidth = textWidth;
+                d.textLength = textLength;
+              }
+            }
+        }
+      });
+
+
     node.select("rect")
       .attr("x", function (d) { return d.rectX; })
       .attr("width", function (d) { return d.rectWidth; });
@@ -226,8 +264,8 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
 
     this.simulation
       .nodes(this.nodes)
-      .on("tick", this.ticked)
-      //.alphaDecay(0);
+      .on("tick", this.ticked);
+    //.alphaDecay(0);
 
     this.simulation.force("link")
       .links(this.links);
@@ -248,12 +286,13 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       }
     });
 
-    d3.select('svg').select(".links")
-      .selectAll(".link").selectAll("line")
-      .attr("x1", function (d: any) { return d.source.x; })
-      .attr("y1", function (d: any) { return d.source.y; })
-      .attr("x2", function (d: any) { return d.target.x; })
-      .attr("y2", function (d: any) { return d.target.y; });
+    //TODO: See if this interferes with the edge function
+    // d3.select('svg').select(".links")
+    //   .selectAll(".link").selectAll("line")
+    //   .attr("x1", function (d: any) { return d.source.x; })
+    //   .attr("y1", function (d: any) { return d.source.y; })
+    //   .attr("x2", function (d: any) { return d.target.x; })
+    //   .attr("y2", function (d: any) { return d.target.y; });
 
     // d3.select('svg').selectAll("rect")
     //   .attr("x", function (d: any) { return d.x; })
@@ -320,7 +359,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   }
 
   dragged(e, d) {
-    this.simulation.alpha(0.1).restart();
+    //this.simulation.alpha(0.1).restart();
     d.fx = e.x;
     d.fy = e.y;
   }
@@ -340,8 +379,8 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
 
   handleNodeMouseDoubleClick(e, d) {
     this.simulation.alpha(0.1).restart();
-    d.fx = undefined
-    d.fy = undefined
+    d.fx = null;
+    d.fy = null;
   }
 
   /**
@@ -420,7 +459,6 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   colorEdges(edgesToColor, color) {
     edgesToColor.forEach(element => {
       let edgeDOM = d3.selectAll("line").filter((d: Edge) => (d == element));
-      console.log("called baby", edgeDOM);
       edgeDOM.style("stroke", color).attr("marker-end", "url(#arrow-out)");
     });
   }
