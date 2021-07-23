@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 
 import * as d3 from 'd3';
+import dagreD3 from "dagre-d3";
 import { DataService } from 'src/app/services/data.service';
 import _ from "lodash/fp";
 import { Edge } from 'src/app/domain/classes/edge';
@@ -12,6 +13,7 @@ import { GraphJSON } from 'src/app/domain/models/GraphJSON';
 import { GraphStore } from 'src/app/domain/stores/graph.store';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { createHostListener } from '@angular/compiler/src/core';
 
 @Component({
   selector: 'app-directed-graph',
@@ -21,8 +23,8 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class DirectedGraphComponent implements OnInit, OnDestroy {
 
+  private g;
   private nodes: Node[];
-
   private links: Edge[];
 
   showCodeView: boolean = true;
@@ -53,21 +55,101 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   constructor(private graphStore: GraphStore, private dataService: DataService,) { }
 
   ngOnInit(): void {
-    this.svg = d3.select('svg')
-      .attr('width', this.width)
-      .attr('height', this.height)
-      .on('click', (e) => { this.resetSelection(); });
-    this.zoomContainer = this.svg.call(d3.zoom().on("zoom", (e) => {
-      this.zoomContainer.attr("transform", e.transform);
-    })).append("g");
-    this.prepareData();
-
     this.graphStore.state$
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(state => {
         console.log("State:", state);
       });
+    this.prepareData();
   }
+
+  generateGraph() {
+
+    // Create the input graph
+    this.g = new dagreD3.graphlib.Graph({ directed: true })
+      .setGraph({})
+      .setDefaultEdgeLabel(function () { return {}; });
+
+    //create groups
+    this.g.setNode('group', { label: '', clusterLabelPos: 'top', style: 'fill: #d3d7e8' });
+    this.g.setNode('top_group', { label: 'Tag Nodes', clusterLabelPos: 'top', style: 'fill: #ffd47f' });
+    this.g.setNode('bottom_group', { label: 'Other Nodes', clusterLabelPos: 'top', style: 'fill: #5f9488' });
+    // this.g.setParent('top_group', 'group');
+    // this.g.setParent('bottom_group', 'group');
+
+    //create nodes and assign nodes to group
+    this.nodes.forEach((element) => {
+      this.g.setNode(element.id, { labelType:"html", label: element.name + this.getLocString(element) , value:element});
+
+      // //set group
+      // if (element.isTagNode()) {
+      //   this.g.setParent(element.id, "top_group");
+      // } else if (!element.isInitNode()) {
+      //   this.g.setParent(element.id, "bottom_group");
+      // }else{
+      //   this.g.setParent(element.id, "group");
+      // }
+    });
+
+    //create edges
+    this.links.forEach((element) => {
+      this.g.setEdge(element.source, element.target, {class: this.getEdgeClass(element.label),value: element.label});
+    });
+
+    this.renderGraph();
+  }
+
+  renderGraph() {
+    var render = new dagreD3.render();
+
+    // Set up an SVG group so that we can translate the final graph.
+    this.svg = d3.select("svg");
+    var svgGroup = this.svg.append("g");
+
+    // Run the renderer. This is what draws the final graph.
+    render(d3.select("svg g"), this.g);
+
+    // set svg height and width according to the graph size
+    this.svg.attr("width", this.g.graph().width + 40);
+    this.svg.attr("height", this.g.graph().height + 40);
+  }
+
+  getLocString(d:Node){
+    if (d.loc) {
+      if (d.loc.start.line == d.loc.end.line) {
+        return "<br>h: " + d.loc.start.line;
+      } else {
+        return "<br>h: " + d.loc.start.line + "-" + d.loc.end.line;
+      }
+    } else {
+      return "";
+    }
+  }
+
+  getEdgeClass(d:string){
+    console.log(d)
+      if (d == EdgeType.EVENT)
+        return "thick";
+      else if (d == EdgeType.SIMPLE)
+        return "dotted";
+  }
+
+  // ngOnInit(): void {
+  //   this.svg = d3.select('svg')
+  //     .attr('width', this.width)
+  //     .attr('height', this.height)
+  //     .on('click', (e) => { this.resetSelection(); });
+  //   this.zoomContainer = this.svg.call(d3.zoom().on("zoom", (e) => {
+  //     this.zoomContainer.attr("transform", e.transform);
+  //   })).append("g");
+  //   this.prepareData();
+
+  //   this.graphStore.state$
+  //     .pipe(takeUntil(this.ngUnsubscribe))
+  //     .subscribe(state => {
+  //       console.log("State:", state);
+  //     });
+  // }
 
 
   ngOnDestroy(): void {
@@ -81,7 +163,6 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
     this.dataService.getDataJson(this.pathToJsonFile).subscribe(gData => {
       let graph = Graph.fromJson((gData as GraphJSON));
       this.graphStore.setGraph(graph);
-
       this.dataService.getVueCode(this.pathToVueFile).subscribe(data => {
         this.fullCodeString = data;
         graph.nodes.map(e => {
@@ -91,11 +172,12 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
         });
 
         console.log("Nodes", this.graphStore.state.graph.nodes);
+        console.log("Edges", this.graphStore.state.graph.edges);
 
         this.nodes = this.graphStore.state.graph.nodes;
         this.links = this.graphStore.state.graph.edges;
 
-        this.renderSvg();
+        this.generateGraph();
         this.graphStore.refreshCodeView();
       });
     });
@@ -119,7 +201,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
 
 
     this.simulation = d3.forceSimulation()
-      .force("link", d3.forceLink().id((d: any) => { return d.id; }))
+      .force("link", d3.forceLink().id((d: any) => { return d.id; })/*.strength((d:any) => {console.log("str", d.value);return d.value})*/.distance((d: any) => { console.log("str", d.value); return d.value; }))
       .force('charge', d3.forceManyBody().strength(-2000).distanceMin(100))
       .force("center", d3.forceCenter(this.width / 2, this.height / 2))
       .force("x", d3.forceX())
@@ -150,9 +232,9 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       .attr("class", "link")
       .append("line")
       .attr("class", (d) => {
-        if (d.label == "event")
+        if (d.label == EdgeType.EVENT)
           return "thick";
-        else if (d.label == "simple")
+        else if (d.label == EdgeType.SIMPLE)
           return "dotted";
       })
       .attr("marker-end", "url(#arrow)")
@@ -364,7 +446,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   }
 
   dragged(e, d) {
-    //this.simulation.alpha(0.1).restart();
+    this.simulation.alpha(0.1).restart();
     d.fx = e.x;
     d.fy = e.y;
   }
