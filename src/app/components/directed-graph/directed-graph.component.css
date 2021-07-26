@@ -4,7 +4,7 @@
 }
 
 .dotted {
-  stroke-dasharray:10, 10;
+  stroke-dasharray:5, 2;
 }
 
 .thick {

@@ -216,6 +216,14 @@ export class GraphStore extends Store<GraphStoreState>{
       }
     });
 
+    tmpGraph.edges.forEach(element => {
+      if(element.source.type == element.target.type){
+        element.value = 10;
+      }else{
+        element.value = 1000;
+      }
+    });
+
     this.setState({
       ...this.state,
       graph: tmpGraph

@@ -6,6 +6,7 @@ export class Edge {
   source: Node;
   target: Node;
   label: EdgeType;
+  value: number = 1;
 
   static fromJson(json: EdgeJSON): Edge {
     const o = Object.create(Edge.prototype);

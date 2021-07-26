@@ -81,7 +81,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
     this.dataService.getDataJson(this.pathToJsonFile).subscribe(gData => {
       let graph = Graph.fromJson((gData as GraphJSON));
       this.graphStore.setGraph(graph);
-
+      this.graphStore.something();
       this.dataService.getVueCode(this.pathToVueFile).subscribe(data => {
         this.fullCodeString = data;
         graph.nodes.map(e => {
@@ -91,6 +91,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
         });
 
         console.log("Nodes", this.graphStore.state.graph.nodes);
+        console.log("Edge", this.graphStore.state.graph.edges);
 
         this.nodes = this.graphStore.state.graph.nodes;
         this.links = this.graphStore.state.graph.edges;
@@ -119,7 +120,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
 
 
     this.simulation = d3.forceSimulation()
-      .force("link", d3.forceLink().id((d: any) => { return d.id; }))
+      .force("link", d3.forceLink().id((d: any) => { return d.id; })/*.strength((d:any) => {console.log("str", d.value);return d.value})*/.distance((d:any) => {console.log("str", d.value);return d.value}))
       .force('charge', d3.forceManyBody().strength(-2000).distanceMin(100))
       .force("center", d3.forceCenter(this.width / 2, this.height / 2))
       .force("x", d3.forceX())
@@ -150,9 +151,9 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       .attr("class", "link")
       .append("line")
       .attr("class", (d) => {
-        if (d.label == "event")
+        if (d.label == EdgeType.EVENT)
           return "thick";
-        else if (d.label == "simple")
+        else if (d.label == EdgeType.SIMPLE)
           return "dotted";
       })
       .attr("marker-end", "url(#arrow)")
@@ -364,7 +365,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   }
 
   dragged(e, d) {
-    //this.simulation.alpha(0.1).restart();
+    this.simulation.alpha(0.1).restart();
     d.fx = e.x;
     d.fy = e.y;
   }
