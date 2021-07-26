@@ -66,7 +66,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   generateGraph() {
 
     // Create the input graph
-    this.g = new dagreD3.graphlib.Graph({ directed: true })
+    this.g = new dagreD3.graphlib.Graph({ compound: true })
       .setGraph({})
       .setDefaultEdgeLabel(function () { return {}; });
 
@@ -74,32 +74,167 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
     this.g.setNode('group', { label: '', clusterLabelPos: 'top', style: 'fill: #d3d7e8' });
     this.g.setNode('top_group', { label: 'Tag Nodes', clusterLabelPos: 'top', style: 'fill: #ffd47f' });
     this.g.setNode('bottom_group', { label: 'Other Nodes', clusterLabelPos: 'top', style: 'fill: #5f9488' });
-    // this.g.setParent('top_group', 'group');
-    // this.g.setParent('bottom_group', 'group');
+    this.g.setParent('top_group', 'group');
+    this.g.setParent('bottom_group', 'group');
 
     //create nodes and assign nodes to group
-    this.nodes.forEach((element) => {
-      this.g.setNode(element.id, { labelType:"html", label: element.name + this.getLocString(element) , value:element});
 
-      // //set group
-      // if (element.isTagNode()) {
-      //   this.g.setParent(element.id, "top_group");
-      // } else if (!element.isInitNode()) {
-      //   this.g.setParent(element.id, "bottom_group");
-      // }else{
-      //   this.g.setParent(element.id, "group");
-      // }
+    this.shuffle(this.nodes).forEach((element) => {
+      this.g.setNode(element.id, { labelType: "html", label: element.name + this.getLocString(element), value: element });
+
+      //set group
+      if (element.isTagNode()) {
+        this.g.setParent(element.id, "top_group");
+      } else if (!element.isInitNode()) {
+        this.g.setParent(element.id, "bottom_group");
+      }else{
+        this.g.setParent(element.id, "group");
+      }
     });
 
     //create edges
-    this.links.forEach((element) => {
-      this.g.setEdge(element.source, element.target, {class: this.getEdgeClass(element.label),value: element.label});
+    this.shuffle(this.links).forEach((element) => {
+      this.g.setEdge(element.source, element.target, { class: this.getEdgeClass(element.label), value: element.label });
     });
 
     this.renderGraph();
   }
 
+  // function to shuffle the list...
+  shuffle(a) {
+    var j, x, i;
+    for (i = a.length; i; i -= 1) {
+      j = Math.floor(Math.random() * i);
+      x = a[i - 1];
+      a[i - 1] = a[j];
+      a[j] = x;
+    }
+    return a;
+  }
+
+  render_graph() {
+    var render = new dagreD3.render();
+    // Create the input graph
+    // this.g = new dagreD3.graphlib.Graph({ directed: true })
+    //   .setGraph({})
+    //   .setDefaultEdgeLabel(function () { return {}; });
+    var svg = d3.select("svg"),
+      inner = svg.append("g");
+
+    var max_cnt = 100; // try 100 times, if optimal not found, give up
+    var iter_cnt = 0;
+    var optimalArray, best_result;
+    while (max_cnt--) {
+      var g = new dagreD3.graphlib.Graph().setGraph({});
+      var listN = this.shuffle(this.nodes);
+      listN.forEach((node) => {
+        g.setNode(node.id, { label: node.name });
+      });
+
+      // set edges... randomize the list
+      var list = this.shuffle(this.links);
+      if (!optimalArray) optimalArray = list;
+      this.links.forEach((element) => {
+        g.setEdge(element.source, element.target, { class: this.getEdgeClass(element.label), value: element.label });
+      });
+
+      // Set the rankdir
+      g.graph().rankdir = "LR";
+      g.graph().nodesep = 60;
+
+      console.log("g", g);
+      console.log("inner", inner);
+      render(d3.select("svg g"), g);
+      svg.attr("width", g.graph().width + 40);
+      svg.attr("height", g.graph().height + 40);
+
+      var nn = svg.select(".edgePaths");
+      console.log(nn)
+      var paths = nn[0][0];
+      var fc = paths.firstChild;
+      var boxes = [];
+      while (fc) {
+        // console.log(fc.firstChild.getAttribute("d"))
+        var path = fc.firstChild.getAttribute("d");
+        var coords = path.split(/,|L/).map(function (c) {
+          var n = c;
+          if ((c[0] == "M" || c[0] == "L")) n = c.substring(1);
+          return parseFloat(n);
+        });
+        boxes.push({ left: coords[0], top: coords[1], right: coords[coords.length - 2], bottom: coords[coords.length - 1] });
+        // console.log(coords);
+        fc = fc.nextSibling;
+      }
+      // console.log("boxes", boxes);
+      var collisionCnt = 0;
+      boxes.forEach(function (a) {
+        // --> test for collisions against other nodes...
+        boxes.forEach(function (b) {
+          if (a == b) return;
+          // test if outside
+          if ((a.right < b.left) ||
+            (a.left > b.right) ||
+            (a.top > b.bottom) ||
+            (a.bottom < b.top)) {
+
+            // test if inside
+            if (a.left >= b.left && a.left <= b.right || a.right >= b.left && a.right <= b.right) {
+              if (a.top <= b.top && a.top >= b.bottom) {
+                collisionCnt++;
+              }
+              if (a.bottom <= b.top && a.bottom >= b.bottom) {
+                collisionCnt++;
+              }
+            }
+          } else {
+            collisionCnt++;
+          }
+        });
+      });
+      console.log("collisions ", collisionCnt);
+      if (collisionCnt == 0) {
+        optimalArray = list.slice();
+        console.log("Iteration cnt ", iter_cnt);
+        break;
+      }
+      if (typeof (best_result) == "undefined") {
+        best_result = collisionCnt;
+      } else {
+        if (collisionCnt < best_result) {
+          optimalArray = list.slice();
+          best_result = collisionCnt;
+        }
+      }
+      iter_cnt++;
+    }
+
+    // if no optimal was found just render what was found...
+    if (best_result >= 0) {
+      var g = new dagreD3.graphlib.Graph().setGraph({});
+      this.nodes.forEach((node) => {
+        g.setNode(node.id, { label: node.name });
+      });
+      optimalArray.forEach((edge) => {
+        g.setEdge.apply(g, edge);
+      });
+      g.graph().rankdir = "LR";
+      g.graph().nodesep = 60;
+      render(inner, g);
+    }
+
+    // Center the graph
+    var initialScale = 0.75;
+    // zoom
+    //   .translate([(svg.attr("width") - g.graph().width * initialScale) / 2, 20])
+    //   .scale(initialScale)
+    //   .event(svg);
+    svg.attr('height', g.graph().height * initialScale + 40);
+
+  }
+
   renderGraph() {
+    this.g.graph().rankdir = "TB";
+    this.g.graph().nodesep = 60;
     var render = new dagreD3.render();
 
     // Set up an SVG group so that we can translate the final graph.
@@ -114,7 +249,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
     this.svg.attr("height", this.g.graph().height + 40);
   }
 
-  getLocString(d:Node){
+  getLocString(d: Node) {
     if (d.loc) {
       if (d.loc.start.line == d.loc.end.line) {
         return "<br>h: " + d.loc.start.line;
@@ -126,12 +261,12 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
     }
   }
 
-  getEdgeClass(d:string){
-    console.log(d)
-      if (d == EdgeType.EVENT)
-        return "thick";
-      else if (d == EdgeType.SIMPLE)
-        return "dotted";
+  getEdgeClass(d: string) {
+    console.log(d);
+    if (d == EdgeType.EVENT)
+      return "thick";
+    else if (d == EdgeType.SIMPLE)
+      return "dotted";
   }
 
   // ngOnInit(): void {
@@ -178,6 +313,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
         this.links = this.graphStore.state.graph.edges;
 
         this.generateGraph();
+        //this.render_graph();
         this.graphStore.refreshCodeView();
       });
     });
