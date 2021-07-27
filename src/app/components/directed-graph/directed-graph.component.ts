@@ -50,6 +50,42 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
 
   private ngUnsubscribe = new Subject();
 
+
+  forceProperties = {
+    center: {
+      x: 0.5,
+      y: 0.5
+    },
+    charge: {
+      enabled: true,
+      strength: -600,
+      distanceMin: 200,
+      distanceMax: 20000
+    },
+    collide: {
+      enabled: true,
+      strength: .7,
+      iterations: 10,
+      radius: 70
+    },
+    forceX: {
+      enabled: false,
+      strength: .1,
+      x: .5
+    },
+    forceY: {
+      enabled: false,
+      strength: .1,
+      y: .5
+    },
+    link: {
+      enabled: true,
+      distance: 30,
+      iterations: 1
+    }
+  };
+
+
   constructor(private graphStore: GraphStore, private dataService: DataService,) { }
 
   ngOnInit(): void {
@@ -115,16 +151,17 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   /**
     * (Re)renders the whole Graph. All the visual nodes and edges are deleted and then newly generated and rendered.
     */
-  private renderSvg(): void {
+  renderSvg(): void {
     this.svg.select('g').selectAll('*').remove();
 
 
     this.simulation = d3.forceSimulation()
-      .force("link", d3.forceLink().id((d: any) => { return d.id; })/*.strength((d:any) => {console.log("str", d.value);return d.value})*/.distance((d:any) => {console.log("str", d.value);return d.value}))
+      .force("link", d3.forceLink().id((d: any) => { return d.id; })/*.strength((d:any) => {console.log("str", d.value);return d.value})*//*.distance((d:any) => {return d.value})*/)
       .force('charge', d3.forceManyBody().strength(-2000).distanceMin(100))
+      .force("collide", d3.forceCollide())
       .force("center", d3.forceCenter(this.width / 2, this.height / 2))
-      .force("x", d3.forceX())
-      .force("y", d3.forceY());
+      .force("forceX", d3.forceX())
+      .force("forceY", d3.forceY());
 
     // build the arrow.
     let arrow = this.zoomContainer.append("svg:defs").selectAll("marker")
@@ -191,8 +228,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       .on('click', (e, d) => { e.stopPropagation(); this.handleNodeMouseClick(e, d); })
       .on("dblclick", (e, d) => { e.stopPropagation(); this.handleNodeMouseDoubleClick(e, d); })
       .call(d3.drag()
-        .on("drag", (e, d) => this.dragged(e, d))
-        .on("end", (e, d) => this.dragended(e, d)));
+        .on("drag", (e, d) => this.dragged(e, d)));
 
 
     // let label = node.append("text")
@@ -276,7 +312,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
     this.simulation.force("link")
       .links(this.links);
 
-
+    //this.updateForces();
     // this.simulation.alphaTarget(0.3);
   }
 
@@ -364,13 +400,38 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
     }
   }
 
-  dragged(e, d) {
+  updateForces() {
+    // get each force by name and update the properties
+    this.simulation.force("center")
+      .x(this.width * this.forceProperties.center.x)
+      .y(this.height * this.forceProperties.center.y);
+    this.simulation.force("charge")
+      .strength(this.forceProperties.charge.enabled ? this.forceProperties.charge.strength : 0)
+      .distanceMin(this.forceProperties.charge.distanceMin)
+      .distanceMax(this.forceProperties.charge.distanceMax);
+    this.simulation.force("collide")
+      .strength(this.forceProperties.collide.enabled ? this.forceProperties.collide.strength : 0)
+      .radius(this.forceProperties.collide.radius)
+      .iterations(this.forceProperties.collide.iterations);
+    this.simulation.force("forceX")
+      .strength(this.forceProperties.forceX.enabled ? this.forceProperties.forceX.strength : 0)
+      .x(this.width * this.forceProperties.forceX.x);
+    this.simulation.force("forceY")
+      .strength(this.forceProperties.forceY.enabled ? this.forceProperties.forceY.strength : 0)
+      .y(this.height * this.forceProperties.forceY.y);
+    this.simulation.force("link")
+      .id(function (d) { return d.id; })
+      .distance(this.forceProperties.link.distance)
+      .iterations(this.forceProperties.link.iterations)
+      .links(this.forceProperties.link.enabled ? this.links : []);
+
+    // updates ignored until this is run
+    // restarts the simulation (important if simulation has already slowed down)
     this.simulation.alpha(0.1).restart();
-    d.fx = e.x;
-    d.fy = e.y;
   }
 
-  dragended(e, d) {
+  dragged(e, d) {
+    console.log("DRAGGED");
     this.simulation.alpha(0.1).restart();
     d.fx = e.x;
     d.fy = e.y;
@@ -545,10 +606,5 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   toggleCodeView() {
     this.showCodeView = !this.showCodeView;
     this.graphStore.refreshCodeView();
-  }
-
-  stuff() {
-    this.graphStore.something();
-    this.renderSvg();
   }
 }

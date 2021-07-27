@@ -1,10 +1,301 @@
-<button (click)="toggleUIView()">UI Selection</button>
-<button (click)="toggleIsPartialGraphView()">
-  Partial Graph View: {{ isPartialGraphView }}
-</button>
-<button (click)="toggleCodeView()">Show Code View</button>
-<button (click)="stuff()">Do stuff</button>
-<svg></svg>
-<div *ngIf="showCodeView">
-  <code-view></code-view>
+<div class="button-wrapper">
+  <button class="button" (click)="toggleUIView()">UI Selection</button>
+  <button class="button" (click)="toggleIsPartialGraphView()">
+    Partial Graph View: {{ isPartialGraphView }}
+  </button>
+  <button class="button" (click)="toggleCodeView()">Show Code View</button>
+  <button class="button" (click)="renderSvg()">Re-render Graph</button>
+</div>
+
+
+<div id="wrapper">
+  <div class="controls">
+    <div class="force">
+      <p>
+        <label>center</label> Shifts the view, so the graph is centered at this
+        location.
+      </p>
+      <label>
+        x
+        <output id="center_XSliderOutput">{{
+          forceProperties.center.x
+        }}</output>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          [(ngModel)]="forceProperties.center.x"
+          (input)="updateForces()"
+        />
+      </label>
+      <label>
+        y
+        <output id="center_YSliderOutput">{{
+          forceProperties.center.y
+        }}</output>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          [(ngModel)]="forceProperties.center.y"
+          (input)="updateForces()"
+        />
+      </label>
+    </div>
+
+    <div class="force">
+      <p>
+        <label
+          ><input
+            type="checkbox"
+            [(ngModel)]="forceProperties.charge.enabled"
+            (change)="updateForces()"
+          />
+          charge</label
+        >
+        Attracts (+) or repels (-) nodes to/from each other.
+      </p>
+      <label
+        title="Negative strength repels nodes. Positive strength attracts nodes."
+      >
+        strength
+        <output id="charge_StrengthSliderOutput">{{
+          forceProperties.charge.strength
+        }}</output>
+        <input
+          type="range"
+          min="-2000"
+          max="50"
+          step=".1"
+          [(ngModel)]="forceProperties.charge.strength"
+          (input)="updateForces()"
+        />
+      </label>
+      <label title="Minimum distance where force is applied">
+        distanceMin
+        <output id="charge_distanceMinSliderOutput">{{
+          forceProperties.charge.distanceMin
+        }}</output>
+        <input
+          type="range"
+          min="0"
+          max="20000"
+          step=".1"
+          [(ngModel)]="forceProperties.charge.distanceMin"
+          (input)="updateForces()"
+        />
+      </label>
+      <label title="Maximum distance where force is applied">
+        distanceMax
+        <output id="charge_distanceMaxSliderOutput">{{
+          forceProperties.charge.distanceMax
+        }}</output>
+        <input
+          type="range"
+          min="0"
+          max="20000"
+          step=".1"
+          [(ngModel)]="forceProperties.charge.distanceMax"
+          (input)="updateForces()"
+        />
+      </label>
+    </div>
+
+    <div class="force">
+      <p>
+        <label
+          ><input
+            type="checkbox"
+            [(ngModel)]="forceProperties.collide.enabled"
+            (change)="updateForces()"
+          />
+          collide</label
+        >
+        Prevents nodes from overlapping
+      </p>
+      <label>
+        strength
+        <output id="collide_StrengthSliderOutput">{{
+          forceProperties.collide.strength
+        }}</output>
+        <input
+          type="range"
+          min="0"
+          max="2"
+          step=".1"
+          [(ngModel)]="forceProperties.collide.strength"
+          (input)="updateForces()"
+        />
+      </label>
+      <label title="Size of nodes">
+        radius
+        <output id="collide_radiusSliderOutput">{{
+          forceProperties.collide.radius
+        }}</output>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          [(ngModel)]="forceProperties.collide.radius"
+          (input)="updateForces()"
+        />
+      </label>
+      <label
+        title="Higher values increase rigidity of the nodes (WARNING: high values are computationally expensive)"
+      >
+        iterations
+        <output id="collide_iterationsSliderOutput">{{
+          forceProperties.collide.iterations
+        }}</output>
+        <input
+          type="range"
+          min="1"
+          max="10"
+          step="1"
+          [(ngModel)]="forceProperties.collide.iterations"
+          (input)="updateForces()"
+        />
+      </label>
+    </div>
+
+    <div class="force">
+      <p>
+        <label
+          ><input
+            type="checkbox"
+            [(ngModel)]="forceProperties.forceX.enabled"
+            (change)="updateForces()"
+          />
+          forceX</label
+        >
+        Acts like gravity. Pulls all points towards an X location.
+      </p>
+      <label>
+        strength
+        <output id="forceX_StrengthSliderOutput">{{
+          forceProperties.forceX.strength
+        }}</output>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          [(ngModel)]="forceProperties.forceX.strength"
+          (input)="updateForces()"
+        />
+      </label>
+      <label
+        title="The X location that the force will push the nodes to (NOTE: This demo multiplies by the svg width)"
+      >
+        x
+        <output id="forceX_XSliderOutput">{{
+          forceProperties.forceX.x
+        }}</output>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          [(ngModel)]="forceProperties.forceX.x"
+          (input)="updateForces()"
+        />
+      </label>
+    </div>
+
+    <div class="force">
+      <p>
+        <label
+          ><input
+            type="checkbox"
+            [(ngModel)]="forceProperties.forceY.enabled"
+            (change)="updateForces()"
+          />
+          forceY</label
+        >
+        Acts like gravity. Pulls all points towards a Y location.
+      </p>
+      <label>
+        strength
+        <output id="forceY_StrengthSliderOutput">{{
+          forceProperties.forceY.strength
+        }}</output>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          [(ngModel)]="forceProperties.forceY.strength"
+          (input)="updateForces()"
+        />
+      </label>
+      <label
+        title="The Y location that the force will push the nodes to (NOTE: This demo multiplies by the svg height)"
+      >
+        y
+        <output id="forceY_YSliderOutput">{{
+          forceProperties.forceY.y
+        }}</output>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          [(ngModel)]="forceProperties.forceY.y"
+          (input)="updateForces()"
+        />
+      </label>
+    </div>
+
+    <div class="force">
+      <p>
+        <label
+          ><input
+            type="checkbox"
+            [(ngModel)]="forceProperties.link.enabled"
+            (change)="updateForces()"
+          />
+          link</label
+        >
+        Sets link length
+      </p>
+      <label title="The force will push/pull nodes to make links this long">
+        distance
+        <output id="link_DistanceSliderOutput">{{
+          forceProperties.link.distance
+        }}</output>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          [(ngModel)]="forceProperties.link.distance"
+          (input)="updateForces()"
+        />
+      </label>
+      <label
+        title="Higher values increase rigidity of the links (WARNING: high values are computationally expensive)"
+      >
+        iterations
+        <output id="link_IterationsSliderOutput">{{
+          forceProperties.link.iterations
+        }}</output>
+        <input
+          type="range"
+          min="1"
+          max="10"
+          step="1"
+          [(ngModel)]="forceProperties.link.iterations"
+          (input)="updateForces()"
+        />
+      </label>
+    </div>
+  </div>
+
+  <div id="graph"><svg></svg></div>
+  <div id="code-view" *ngIf="showCodeView">
+    <code-view></code-view>
+  </div>
 </div>

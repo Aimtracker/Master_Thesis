@@ -4,7 +4,7 @@
 }
 
 .dotted {
-  stroke-dasharray:5, 2;
+  stroke-dasharray: 5, 2;
 }
 
 .thick {
@@ -35,18 +35,18 @@
   /* Disable text selection
      from http://stackoverflow.com/questions/826782/css-rule-to-disable-text-selection-highlighting */
   -webkit-touch-callout: none; /* iOS Safari */
-  -webkit-user-select: none;   /* Chrome/Safari/Opera */
-  -khtml-user-select: none;    /* Konqueror */
-  -moz-user-select: none;      /* Firefox */
-  -ms-user-select: none;       /* Internet Explorer/Edge */
+  -webkit-user-select: none; /* Chrome/Safari/Opera */
+  -khtml-user-select: none; /* Konqueror */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none;
 }
 
-.node-text-top{
+.node-text-top {
   alignment-baseline: after-edge !important;
 }
 
-.node-text-bottom{
+.node-text-bottom {
   alignment-baseline: before-edge !important;
 }
 
@@ -55,4 +55,68 @@
   fill: #ccc;
   stroke: #000;
   stroke-width: 1.5px;
+}
+
+.button-wrapper {
+  background-color: #eee;
+  border-radius: 3px;
+  padding: 5px;
+  margin: 5px 0;
+  text-indent: 20%;
+}
+
+.button {
+  padding: 5px;
+  margin-left: 15px;
+
+  color: #fff;
+  background-color: #0075ff;
+  text-shadow: -1px 1px #417cb8;
+  border: none;
+  border-radius: 5px;
+}
+
+#wrapper {
+  display: flex;
+}
+
+#graph {
+  flex: 1;
+}
+
+#code-view {
+  height: 900px;
+  overflow-y: scroll;
+  overflow-x: scroll;
+}
+
+.controls {
+  height: 900px;
+  overflow-y: scroll;
+  flex-basis: 200px;
+  padding: 0 5px;
+}
+.controls .force {
+  background-color: #eee;
+  border-radius: 3px;
+  padding: 5px;
+  margin: 5px 0;
+}
+.controls .force p label {
+  margin-right: 0.5em;
+  font-size: 120%;
+  font-weight: bold;
+}
+.controls .force p {
+  margin-top: 0;
+}
+.controls .force label {
+  display: inline-block;
+}
+.controls input[type="checkbox"] {
+  transform: scale(1.2, 1.2);
+}
+.controls input[type="range"] {
+  margin: 0 5% 0.5em 5%;
+  width: 90%;
 }

@@ -3,9 +3,10 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { DirectedGraphComponent } from './components/directed-graph/directed-graph.component';
-
 import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from "@angular/forms";
+
+import { DirectedGraphComponent } from './components/directed-graph/directed-graph.component';
 import { HighlightService } from './services/highlight.service';
 import { CodeViewComponent } from './components/code-view/code-view.component';
 
@@ -18,7 +19,8 @@ import { CodeViewComponent } from './components/code-view/code-view.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    FormsModule,
   ],
   providers: [HighlightService,],
   bootstrap: [AppComponent]
