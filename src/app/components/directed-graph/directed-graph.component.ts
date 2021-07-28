@@ -27,8 +27,6 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   private links: Edge[];
 
   showCodeView: boolean = true;
-  fullCodeString: string = "";
-  linesToHighlight: string = "";
   pathToVueFile: string = 'assets/test.vue/test.vue';
   pathToJsonFile: string = 'assets/test.vue/data.json';
 
@@ -150,12 +148,11 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
 
 
   prepareData() {
-    this.dataService.getDataJson(this.pathToJsonFile).subscribe(gData => {
+    this.dataService.getDataJson(this.graphStore.state.pathToJsonFile).subscribe(gData => {
       let graph = Graph.fromJson((gData as GraphJSON));
       this.graphStore.setGraph(graph);
       //this.graphStore.something();
-      this.dataService.getVueCode(this.pathToVueFile).subscribe(data => {
-        this.fullCodeString = data;
+      this.dataService.getVueCode(this.graphStore.state.pathToVueFile).subscribe(data => {
         graph.nodes.map(e => {
           if (e.discriminator == NodeType.TAG) {
             e.loc.codeString = getCodeString(data, e.loc.start, e.loc.end);
@@ -645,8 +642,16 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   }
 
   changeScenario(scenarioName){
-    this.pathToVueFile = this.scenarios.find(e => e.name == scenarioName).pathToVueFile
-    this.pathToJsonFile = this.scenarios.find(e => e.name == scenarioName).pathToJsonFile
+    let ptvf = this.scenarios.find(e => e.name == scenarioName).pathToVueFile;
+    let ptjf = this.scenarios.find(e => e.name == scenarioName).pathToJsonFile;
+    this.graphStore.setScenario(ptjf, ptvf);
+
+    //Toggle the code view off and on again for prism.js to register the code has changed
+    this.toggleCodeView();
+    setTimeout(() => {
+      //Give Angular a fraction of a second to properly show the elements, then refresh prismjs
+      this.toggleCodeView();
+    }, 10);
     this.prepareData();
   }
 }

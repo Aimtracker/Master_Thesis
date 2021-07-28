@@ -12,6 +12,8 @@ export class GraphStoreState {
   graph: Graph = null;
   uiGraph: Graph = null;
 
+  pathToVueFile: string = "assets/test.vue/test.vue"
+  pathToJsonFile: string = "assets/test.vue/data.json"
   linesToHighlight: string = "";
 }
 
@@ -55,6 +57,14 @@ export class GraphStore extends Store<GraphStoreState>{
     this.setState({
       ...this.state,
       uiGraph: newGraph
+    });
+  }
+
+  setScenario(pathToJsonFile, pathToVueFile){
+    this.setState({
+      ...this.state,
+      pathToJsonFile: pathToJsonFile,
+      pathToVueFile: pathToVueFile
     });
   }
 

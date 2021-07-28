@@ -10,8 +10,7 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class CodeViewComponent implements OnInit, OnDestroy {
   linesToHighlight: string = "";
-  pathToVueFile: string = 'assets/test.vue/test.vue';
-
+  pathToVueFile: string = '';
   private ngUnsubscribe = new Subject();
 
   constructor(private graphStore: GraphStore) { }
@@ -21,7 +20,9 @@ export class CodeViewComponent implements OnInit, OnDestroy {
     this.graphStore.state$
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(state => {
+        this.pathToVueFile = state.pathToVueFile;
         this.linesToHighlight = state.linesToHighlight;
+        this.graphStore.refreshCodeView();
       });
   }
 
@@ -29,5 +30,4 @@ export class CodeViewComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
   }
-
 }

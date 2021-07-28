@@ -86,6 +86,7 @@
 
 #code-view {
   height: 900px;
+  flex-basis: 800px;
   overflow-y: scroll;
   overflow-x: scroll;
 }
