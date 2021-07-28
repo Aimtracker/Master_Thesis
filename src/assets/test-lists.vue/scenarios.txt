@@ -1,0 +1,94 @@
+l(problems[i].answer) -> problems[i].answer, Check
+l(Check) -> Right, Wrong, Check, count_right, accuracy, count_wrong
+l(New Problem) -> problems[i].a, problems[i].b, problems[i].answer, Check, Right, Wrong, First Problem
+l(created) -> problems[i].a, problems[i].b, problems[i].answer, Check, Right, Wrong, First Problem
+
+Unique scenarios (A) of up to 4 elements:
+[
+  [ 'created' ],
+  [ 'created', 'problems[i].answer' ],
+  [ 'created', 'Check' ],
+  [ 'created', 'New Problem' ],
+  [ 'created', 'problems[i].answer', 'Check' ],
+  [ 'created', 'New Problem', 'problems[i].answer' ],
+  [ 'created', 'New Problem', 'Check' ],
+  [ 'created', 'New Problem', 'problems[i].answer', 'Check' ]
+]
+Scenario: ['created']
+	When 'created'
+	Then 'problems[i].a'
+	And 'problems[i].b'
+	And 'problems[i].answer'
+	And 'Check'
+	And 'Right'
+	And 'Wrong'
+	And 'First Problem'
+
+Scenario: ['created', 'problems[i].answer']
+	Given 'created'
+	When 'problems[i].answer'
+	Then 'problems[i].answer'
+	And 'Check'
+
+Scenario: ['created', 'Check']
+	Given 'created'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'count_right'
+	And 'accuracy'
+	And 'count_wrong'
+
+Scenario: ['created', 'New Problem']
+	Given 'created'
+	When 'New Problem'
+	Then 'problems[i].a'
+	And 'problems[i].b'
+	And 'problems[i].answer'
+	And 'Check'
+	And 'Right'
+	And 'Wrong'
+	And 'First Problem'
+
+Scenario: ['created', 'problems[i].answer', 'Check']
+	Given 'created'
+	And 'problems[i].answer'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'count_right'
+	And 'accuracy'
+	And 'count_wrong'
+
+Scenario: ['created', 'New Problem', 'problems[i].answer']
+	Given 'created'
+	And 'New Problem'
+	When 'problems[i].answer'
+	Then 'problems[i].answer'
+	And 'Check'
+
+Scenario: ['created', 'New Problem', 'Check']
+	Given 'created'
+	And 'New Problem'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'count_right'
+	And 'accuracy'
+	And 'count_wrong'
+
+Scenario: ['created', 'New Problem', 'problems[i].answer', 'Check']
+	Given 'created'
+	And 'New Problem'
+	And 'problems[i].answer'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'count_right'
+	And 'accuracy'
+	And 'count_wrong'
+

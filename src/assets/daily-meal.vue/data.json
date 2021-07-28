@@ -1,0 +1,555 @@
+{
+  "options": {
+    "directed": true,
+    "multigraph": false,
+    "compound": true
+  },
+  "nodes": [
+    {
+      "v": "this.created",
+      "value": {
+        "id": "this.created",
+        "name": "created",
+        "discriminator": "init"
+      }
+    },
+    {
+      "v": "div_7_10_7_35",
+      "value": {
+        "id": "div_7_10_7_35",
+        "name": "meals[i].name",
+        "loc": {
+          "start": {
+            "line": 7,
+            "column": 10
+          },
+          "end": {
+            "line": 7,
+            "column": 35
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this",
+      "value": {
+        "id": "this",
+        "type": "this",
+        "name": "this",
+        "discriminator": "data"
+      }
+    },
+    {
+      "v": "this.meals",
+      "value": {
+        "id": "this.meals",
+        "type": "name-identifier",
+        "name": "meals",
+        "parent": "this",
+        "discriminator": "data"
+      },
+      "parent": "this"
+    },
+    {
+      "v": "this.meals[i]",
+      "value": {
+        "id": "this.meals[i]",
+        "type": "generic-index",
+        "name": "meals[i]",
+        "parent": "this.meals",
+        "discriminator": "data"
+      },
+      "parent": "this.meals"
+    },
+    {
+      "v": "this.meals[i].name",
+      "value": {
+        "id": "this.meals[i].name",
+        "type": "name-identifier",
+        "name": "name",
+        "parent": "this.meals[i]",
+        "discriminator": "data"
+      },
+      "parent": "this.meals[i]"
+    },
+    {
+      "v": "div_8_10_8_47",
+      "value": {
+        "id": "div_8_10_8_47",
+        "name": "Price",
+        "loc": {
+          "start": {
+            "line": 8,
+            "column": 10
+          },
+          "end": {
+            "line": 8,
+            "column": 47
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this.meals[i].price",
+      "value": {
+        "id": "this.meals[i].price",
+        "type": "name-identifier",
+        "name": "price",
+        "parent": "this.meals[i]",
+        "discriminator": "data"
+      },
+      "parent": "this.meals[i]"
+    },
+    {
+      "v": "div_14_0_14_50",
+      "value": {
+        "id": "div_14_0_14_50",
+        "name": "Meal of the day -",
+        "loc": {
+          "start": {
+            "line": 14,
+            "column": 0
+          },
+          "end": {
+            "line": 14,
+            "column": 50
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this.mealOfTheDay",
+      "value": {
+        "id": "this.mealOfTheDay",
+        "type": "name-identifier",
+        "name": "mealOfTheDay",
+        "parent": "this",
+        "discriminator": "data"
+      },
+      "parent": "this"
+    },
+    {
+      "v": "this.mealOfTheDay.name",
+      "value": {
+        "id": "this.mealOfTheDay.name",
+        "type": "name-identifier",
+        "name": "name",
+        "parent": "this.mealOfTheDay",
+        "discriminator": "data"
+      },
+      "parent": "this.mealOfTheDay"
+    },
+    {
+      "v": "div_16_0_16_57",
+      "value": {
+        "id": "div_16_0_16_57",
+        "name": "Best steak in town -",
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 0
+          },
+          "end": {
+            "line": 16,
+            "column": 57
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this.meals[2]",
+      "value": {
+        "id": "this.meals[2]",
+        "type": "numeric-index",
+        "name": "meals[2]",
+        "parent": "this.meals",
+        "discriminator": "data"
+      },
+      "parent": "this.meals"
+    },
+    {
+      "v": "this.meals[2].price",
+      "value": {
+        "id": "this.meals[2].price",
+        "type": "name-identifier",
+        "name": "price",
+        "parent": "this.meals[2]",
+        "discriminator": "data"
+      },
+      "parent": "this.meals[2]"
+    },
+    {
+      "v": "button_20_0_20_45",
+      "value": {
+        "id": "button_20_0_20_45",
+        "name": "New Day",
+        "loc": {
+          "start": {
+            "line": 20,
+            "column": 0
+          },
+          "end": {
+            "line": 20,
+            "column": 45
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this.new_day()",
+      "value": {
+        "id": "this.new_day()",
+        "name": "new_day()",
+        "discriminator": "method"
+      }
+    },
+    {
+      "v": "button_21_0_21_55",
+      "value": {
+        "id": "button_21_0_21_55",
+        "name": "Discount all",
+        "loc": {
+          "start": {
+            "line": 21,
+            "column": 0
+          },
+          "end": {
+            "line": 21,
+            "column": 55
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this.discount_all()",
+      "value": {
+        "id": "this.discount_all()",
+        "name": "discount_all()",
+        "discriminator": "method"
+      }
+    },
+    {
+      "v": "this.init()",
+      "value": {
+        "id": "this.init()",
+        "name": "init()",
+        "discriminator": "method"
+      }
+    },
+    {
+      "v": "this.isFriday",
+      "value": {
+        "id": "this.isFriday",
+        "type": "name-identifier",
+        "name": "isFriday",
+        "parent": "this",
+        "discriminator": "data"
+      },
+      "parent": "this"
+    },
+    {
+      "v": "this.meals[1]",
+      "value": {
+        "id": "this.meals[1]",
+        "type": "numeric-index",
+        "name": "meals[1]",
+        "parent": "this.meals",
+        "discriminator": "data"
+      },
+      "parent": "this.meals"
+    },
+    {
+      "v": "this.meals[1].price",
+      "value": {
+        "id": "this.meals[1].price",
+        "type": "name-identifier",
+        "name": "price",
+        "parent": "this.meals[1]",
+        "discriminator": "data"
+      },
+      "parent": "this.meals[1]"
+    },
+    {
+      "v": "this.meals[0]",
+      "value": {
+        "id": "this.meals[0]",
+        "type": "numeric-index",
+        "name": "meals[0]",
+        "parent": "this.meals",
+        "discriminator": "data"
+      },
+      "parent": "this.meals"
+    },
+    {
+      "v": "this.meals[0].price",
+      "value": {
+        "id": "this.meals[0].price",
+        "type": "name-identifier",
+        "name": "price",
+        "parent": "this.meals[0]",
+        "discriminator": "data"
+      },
+      "parent": "this.meals[0]"
+    },
+    {
+      "v": "this.meals.length",
+      "value": {
+        "id": "this.meals.length",
+        "type": "name-identifier",
+        "name": "length",
+        "parent": "this.meals",
+        "discriminator": "data"
+      },
+      "parent": "this.meals"
+    },
+    {
+      "v": "this.meals.price",
+      "value": {
+        "id": "this.meals.price",
+        "type": "name-identifier",
+        "name": "price",
+        "parent": "this.meals",
+        "discriminator": "data"
+      },
+      "parent": "this.meals"
+    }
+  ],
+  "edges": [
+    {
+      "v": "this",
+      "w": "this.meals",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals",
+      "w": "this.meals[i]",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[i]",
+      "w": "this.meals[i].name",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[i].name",
+      "w": "div_7_10_7_35",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[i]",
+      "w": "this.meals[i].price",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[i].price",
+      "w": "div_8_10_8_47",
+      "value": "simple"
+    },
+    {
+      "v": "this",
+      "w": "this.mealOfTheDay",
+      "value": "simple"
+    },
+    {
+      "v": "this.mealOfTheDay",
+      "w": "this.mealOfTheDay.name",
+      "value": "simple"
+    },
+    {
+      "v": "this.mealOfTheDay.name",
+      "w": "div_14_0_14_50",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals",
+      "w": "this.meals[2]",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[2]",
+      "w": "this.meals[2].price",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[2].price",
+      "w": "div_16_0_16_57",
+      "value": "simple"
+    },
+    {
+      "v": "button_20_0_20_45",
+      "w": "this.new_day()",
+      "value": "event"
+    },
+    {
+      "v": "button_21_0_21_55",
+      "w": "this.discount_all()",
+      "value": "event"
+    },
+    {
+      "v": "this.created",
+      "w": "this.init()",
+      "value": "calls"
+    },
+    {
+      "v": "this.init()",
+      "w": "this.meals",
+      "value": "simple"
+    },
+    {
+      "v": "this.init()",
+      "w": "this.new_day()",
+      "value": "calls"
+    },
+    {
+      "v": "this",
+      "w": "this.isFriday",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals",
+      "w": "this.meals[1]",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[1]",
+      "w": "this.meals[1].price",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals",
+      "w": "this.meals[0]",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[0]",
+      "w": "this.meals[0].price",
+      "value": "simple"
+    },
+    {
+      "v": "this.isFriday",
+      "w": "this.new_day()",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[1]",
+      "w": "this.new_day()",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[1].price",
+      "w": "this.new_day()",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[0].price",
+      "w": "this.new_day()",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[0]",
+      "w": "this.new_day()",
+      "value": "simple"
+    },
+    {
+      "v": "this.new_day()",
+      "w": "this.isFriday",
+      "value": "simple"
+    },
+    {
+      "v": "this.new_day()",
+      "w": "this.meals[0].price",
+      "value": "simple"
+    },
+    {
+      "v": "this.new_day()",
+      "w": "this.meals[1].price",
+      "value": "simple"
+    },
+    {
+      "v": "this.new_day()",
+      "w": "this.mealOfTheDay",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals",
+      "w": "this.meals.length",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals.length",
+      "w": "this.discount_all()",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[i].price",
+      "w": "this.discount_all()",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals",
+      "w": "this.meals.price",
+      "value": "simple"
+    },
+    {
+      "v": "this.discount_all()",
+      "w": "this.meals.price",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[2]",
+      "w": "this.meals[i]",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[2].price",
+      "w": "this.meals[i].price",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals.price",
+      "w": "this.meals[2].price",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[1]",
+      "w": "this.meals[i]",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[1].price",
+      "w": "this.meals[i].price",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals.price",
+      "w": "this.meals[1].price",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[0]",
+      "w": "this.meals[i]",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals[0].price",
+      "w": "this.meals[i].price",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals.price",
+      "w": "this.meals[0].price",
+      "value": "simple"
+    },
+    {
+      "v": "this.meals.price",
+      "w": "this.meals[i].price",
+      "value": "simple"
+    }
+  ]
+}

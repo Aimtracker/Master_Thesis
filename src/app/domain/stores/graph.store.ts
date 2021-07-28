@@ -13,7 +13,6 @@ export class GraphStoreState {
   uiGraph: Graph = null;
 
   linesToHighlight: string = "";
-  testString: string = "empty";
 }
 
 @Injectable({
@@ -24,16 +23,6 @@ export class GraphStore extends Store<GraphStoreState>{
     super(new GraphStoreState());
   }
 
-  getTestString(): string {
-    return this.state.testString;
-  }
-
-  setTestString(value: string): void {
-    this.setState({
-      ...this.state,
-      testString: value
-    });
-  }
 
   setGraph(inGraph: Graph) {
     this.setState({
@@ -206,28 +195,28 @@ export class GraphStore extends Store<GraphStoreState>{
     }, 10);
   }
 
-  something(){
-    let tmpGraph = this.state.graph;
-    tmpGraph.nodes.forEach(element => {
-      if(element.isTagNode()){
-        element.group = 1;
-      }else{
-        element.group = 2;
-      }
-    });
+  // something(){
+  //   let tmpGraph = this.state.graph;
+  //   tmpGraph.nodes.forEach(element => {
+  //     if(element.isTagNode()){
+  //       element.group = 1;
+  //     }else{
+  //       element.group = 2;
+  //     }
+  //   });
 
-    tmpGraph.edges.forEach(element => {
-      if(element.source.type == element.target.type){
-        element.value = 10;
-      }else{
-        element.value = 1000;
-      }
-    });
+  //   tmpGraph.edges.forEach(element => {
+  //     if(element.source.type == element.target.type){
+  //       element.value = 10;
+  //     }else{
+  //       element.value = 1000;
+  //     }
+  //   });
 
-    this.setState({
-      ...this.state,
-      graph: tmpGraph
-    })
-  }
+  //   this.setState({
+  //     ...this.state,
+  //     graph: tmpGraph
+  //   })
+  // }
 
 }

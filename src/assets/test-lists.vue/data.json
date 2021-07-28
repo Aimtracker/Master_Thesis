@@ -1,0 +1,624 @@
+{
+  "options": {
+    "directed": true,
+    "multigraph": false,
+    "compound": true
+  },
+  "nodes": [
+    {
+      "v": "this.created",
+      "value": {
+        "id": "this.created",
+        "name": "created",
+        "discriminator": "init"
+      }
+    },
+    {
+      "v": "span_7_12_7_40",
+      "value": {
+        "id": "span_7_12_7_40",
+        "name": "problems[i].a",
+        "loc": {
+          "start": {
+            "line": 7,
+            "column": 12
+          },
+          "end": {
+            "line": 7,
+            "column": 40
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this",
+      "value": {
+        "id": "this",
+        "type": "this",
+        "name": "this",
+        "discriminator": "data"
+      }
+    },
+    {
+      "v": "this.problems",
+      "value": {
+        "id": "this.problems",
+        "type": "name-identifier",
+        "name": "problems",
+        "parent": "this",
+        "discriminator": "data"
+      },
+      "parent": "this"
+    },
+    {
+      "v": "this.problems[i]",
+      "value": {
+        "id": "this.problems[i]",
+        "type": "generic-index",
+        "name": "problems[i]",
+        "parent": "this.problems",
+        "discriminator": "data"
+      },
+      "parent": "this.problems"
+    },
+    {
+      "v": "this.problems[i].a",
+      "value": {
+        "id": "this.problems[i].a",
+        "type": "name-identifier",
+        "name": "a",
+        "parent": "this.problems[i]",
+        "discriminator": "data"
+      },
+      "parent": "this.problems[i]"
+    },
+    {
+      "v": "span_7_43_7_72",
+      "value": {
+        "id": "span_7_43_7_72",
+        "name": "problems[i].b",
+        "loc": {
+          "start": {
+            "line": 7,
+            "column": 43
+          },
+          "end": {
+            "line": 7,
+            "column": 72
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this.problems[i].b",
+      "value": {
+        "id": "this.problems[i].b",
+        "type": "name-identifier",
+        "name": "b",
+        "parent": "this.problems[i]",
+        "discriminator": "data"
+      },
+      "parent": "this.problems[i]"
+    },
+    {
+      "v": "input_8_18_8_69",
+      "value": {
+        "id": "input_8_18_8_69",
+        "name": "problems[i].answer",
+        "loc": {
+          "start": {
+            "line": 8,
+            "column": 18
+          },
+          "end": {
+            "line": 8,
+            "column": 69
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this.problems[i].answer",
+      "value": {
+        "id": "this.problems[i].answer",
+        "type": "name-identifier",
+        "name": "answer",
+        "parent": "this.problems[i]",
+        "discriminator": "data"
+      },
+      "parent": "this.problems[i]"
+    },
+    {
+      "v": "button_9_12_17_21",
+      "value": {
+        "id": "button_9_12_17_21",
+        "name": "Check",
+        "loc": {
+          "start": {
+            "line": 9,
+            "column": 12
+          },
+          "end": {
+            "line": 17,
+            "column": 21
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this.may_check(this.problems[i])",
+      "value": {
+        "id": "this.may_check(this.problems[i])",
+        "name": "may_check(problems[i])",
+        "discriminator": "method"
+      }
+    },
+    {
+      "v": "this.check_answer(this.problems[i])",
+      "value": {
+        "id": "this.check_answer(this.problems[i])",
+        "name": "check_answer(problems[i])",
+        "discriminator": "method"
+      }
+    },
+    {
+      "v": "button_18_12_25_21",
+      "value": {
+        "id": "button_18_12_25_21",
+        "name": "Right",
+        "loc": {
+          "start": {
+            "line": 18,
+            "column": 12
+          },
+          "end": {
+            "line": 25,
+            "column": 21
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this.problems[i].right",
+      "value": {
+        "id": "this.problems[i].right",
+        "type": "name-identifier",
+        "name": "right",
+        "parent": "this.problems[i]",
+        "discriminator": "data"
+      },
+      "parent": "this.problems[i]"
+    },
+    {
+      "v": "button_26_12_33_21",
+      "value": {
+        "id": "button_26_12_33_21",
+        "name": "Wrong",
+        "loc": {
+          "start": {
+            "line": 26,
+            "column": 12
+          },
+          "end": {
+            "line": 33,
+            "column": 21
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "button_34_12_40_21",
+      "value": {
+        "id": "button_34_12_40_21",
+        "name": "New Problem",
+        "loc": {
+          "start": {
+            "line": 34,
+            "column": 12
+          },
+          "end": {
+            "line": 40,
+            "column": 21
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this.new_problem()",
+      "value": {
+        "id": "this.new_problem()",
+        "name": "new_problem()",
+        "discriminator": "method"
+      }
+    },
+    {
+      "v": "span_57_12_57_43",
+      "value": {
+        "id": "span_57_12_57_43",
+        "name": "count_right",
+        "loc": {
+          "start": {
+            "line": 57,
+            "column": 12
+          },
+          "end": {
+            "line": 57,
+            "column": 43
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this.count_right",
+      "value": {
+        "id": "this.count_right",
+        "type": "name-identifier",
+        "name": "count_right",
+        "parent": "this",
+        "discriminator": "data"
+      },
+      "parent": "this"
+    },
+    {
+      "v": "span_60_12_60_43",
+      "value": {
+        "id": "span_60_12_60_43",
+        "name": "count_wrong",
+        "loc": {
+          "start": {
+            "line": 60,
+            "column": 12
+          },
+          "end": {
+            "line": 60,
+            "column": 43
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this.count_wrong",
+      "value": {
+        "id": "this.count_wrong",
+        "type": "name-identifier",
+        "name": "count_wrong",
+        "parent": "this",
+        "discriminator": "data"
+      },
+      "parent": "this"
+    },
+    {
+      "v": "span_63_12_63_40",
+      "value": {
+        "id": "span_63_12_63_40",
+        "name": "accuracy",
+        "loc": {
+          "start": {
+            "line": 63,
+            "column": 12
+          },
+          "end": {
+            "line": 63,
+            "column": 40
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this.accuracy",
+      "value": {
+        "id": "this.accuracy",
+        "name": "accuracy",
+        "discriminator": "method"
+      }
+    },
+    {
+      "v": "span_68_4_68_58",
+      "value": {
+        "id": "span_68_4_68_58",
+        "name": "First Problem",
+        "loc": {
+          "start": {
+            "line": 68,
+            "column": 4
+          },
+          "end": {
+            "line": 68,
+            "column": 58
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this.problems[0]",
+      "value": {
+        "id": "this.problems[0]",
+        "type": "numeric-index",
+        "name": "problems[0]",
+        "parent": "this.problems",
+        "discriminator": "data"
+      },
+      "parent": "this.problems"
+    },
+    {
+      "v": "this.problems[0].a",
+      "value": {
+        "id": "this.problems[0].a",
+        "type": "name-identifier",
+        "name": "a",
+        "parent": "this.problems[0]",
+        "discriminator": "data"
+      },
+      "parent": "this.problems[0]"
+    },
+    {
+      "v": "this.add_problem()",
+      "value": {
+        "id": "this.add_problem()",
+        "name": "add_problem()",
+        "discriminator": "method"
+      }
+    },
+    {
+      "v": "this.problems.length",
+      "value": {
+        "id": "this.problems.length",
+        "type": "name-identifier",
+        "name": "length",
+        "parent": "this.problems",
+        "discriminator": "data"
+      },
+      "parent": "this.problems"
+    },
+    {
+      "v": "this.problems[i].c",
+      "value": {
+        "id": "this.problems[i].c",
+        "type": "name-identifier",
+        "name": "c",
+        "parent": "this.problems[i]",
+        "discriminator": "data"
+      },
+      "parent": "this.problems[i]"
+    },
+    {
+      "v": "this.problems.right",
+      "value": {
+        "id": "this.problems.right",
+        "type": "name-identifier",
+        "name": "right",
+        "parent": "this.problems",
+        "discriminator": "data"
+      },
+      "parent": "this.problems"
+    }
+  ],
+  "edges": [
+    {
+      "v": "this",
+      "w": "this.problems",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems",
+      "w": "this.problems[i]",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems[i]",
+      "w": "this.problems[i].a",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems[i].a",
+      "w": "span_7_12_7_40",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems[i]",
+      "w": "this.problems[i].b",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems[i].b",
+      "w": "span_7_43_7_72",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems[i]",
+      "w": "this.problems[i].answer",
+      "value": "simple"
+    },
+    {
+      "v": "input_8_18_8_69",
+      "w": "this.problems[i].answer",
+      "value": "event"
+    },
+    {
+      "v": "this.problems[i].answer",
+      "w": "input_8_18_8_69",
+      "value": "simple"
+    },
+    {
+      "v": "this.may_check(this.problems[i])",
+      "w": "button_9_12_17_21",
+      "value": "simple"
+    },
+    {
+      "v": "button_9_12_17_21",
+      "w": "this.check_answer(this.problems[i])",
+      "value": "event"
+    },
+    {
+      "v": "this.problems[i]",
+      "w": "this.problems[i].right",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems[i].right",
+      "w": "button_18_12_25_21",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems[i].right",
+      "w": "button_26_12_33_21",
+      "value": "simple"
+    },
+    {
+      "v": "button_34_12_40_21",
+      "w": "this.new_problem()",
+      "value": "event"
+    },
+    {
+      "v": "this",
+      "w": "this.count_right",
+      "value": "simple"
+    },
+    {
+      "v": "this.count_right",
+      "w": "span_57_12_57_43",
+      "value": "simple"
+    },
+    {
+      "v": "this",
+      "w": "this.count_wrong",
+      "value": "simple"
+    },
+    {
+      "v": "this.count_wrong",
+      "w": "span_60_12_60_43",
+      "value": "simple"
+    },
+    {
+      "v": "this.accuracy",
+      "w": "span_63_12_63_40",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems",
+      "w": "this.problems[0]",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems[0]",
+      "w": "this.problems[0].a",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems[0].a",
+      "w": "span_68_4_68_58",
+      "value": "simple"
+    },
+    {
+      "v": "this.created",
+      "w": "this.add_problem()",
+      "value": "calls"
+    },
+    {
+      "v": "this.problems",
+      "w": "this.problems.length",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems.length",
+      "w": "this.add_problem()",
+      "value": "simple"
+    },
+    {
+      "v": "this.add_problem()",
+      "w": "this.problems",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems[i].answer",
+      "w": "this.may_check(this.problems[i])",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems[i].right",
+      "w": "this.may_check(this.problems[i])",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems[i]",
+      "w": "this.problems[i].c",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems[i].c",
+      "w": "this.check_answer(this.problems[i])",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems[i].answer",
+      "w": "this.check_answer(this.problems[i])",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems[i].right",
+      "w": "this.check_answer(this.problems[i])",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems",
+      "w": "this.problems.right",
+      "value": "simple"
+    },
+    {
+      "v": "this.check_answer(this.problems[i])",
+      "w": "this.problems.right",
+      "value": "simple"
+    },
+    {
+      "v": "this.check_answer(this.problems[i])",
+      "w": "this.count_right",
+      "value": "simple"
+    },
+    {
+      "v": "this.check_answer(this.problems[i])",
+      "w": "this.count_wrong",
+      "value": "simple"
+    },
+    {
+      "v": "this.new_problem()",
+      "w": "this.add_problem()",
+      "value": "calls"
+    },
+    {
+      "v": "this.count_wrong",
+      "w": "this.accuracy",
+      "value": "simple"
+    },
+    {
+      "v": "this.count_right",
+      "w": "this.accuracy",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems[0]",
+      "w": "this.problems[i]",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems[0].a",
+      "w": "this.problems[i].a",
+      "value": "simple"
+    },
+    {
+      "v": "this.problems.right",
+      "w": "this.problems[i].right",
+      "value": "simple"
+    }
+  ]
+}

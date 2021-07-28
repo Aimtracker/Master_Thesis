@@ -12,6 +12,7 @@ import { GraphJSON } from 'src/app/domain/models/GraphJSON';
 import { GraphStore } from 'src/app/domain/stores/graph.store';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { TestBed } from '@angular/core/testing';
 
 @Component({
   selector: 'app-directed-graph',
@@ -41,8 +42,6 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   private height = 1000 - (this.margin * 2);
 
   private nodeSize: number = 20.0;
-  private rectHeight = 25;
-  private rectWidth = 150;
 
   private svg;
   private zoomContainer;
@@ -50,6 +49,43 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
 
   private ngUnsubscribe = new Subject();
 
+  scenarios = [
+    {
+      name: "test.vue",
+      pathToVueFile: 'assets/test.vue/test.vue',
+      pathToJsonFile: 'assets/test.vue/data.json'
+    },
+    {
+      name: "daily-meal.vue",
+      pathToVueFile: 'assets/daily-meal.vue/daily-meal.vue',
+      pathToJsonFile: 'assets/daily-meal.vue/data.json'
+    },
+    {
+      name: "test-add-sub-v2.vue",
+      pathToVueFile: 'assets/test-add-sub-v2.vue/test-add-sub-v2.vue',
+      pathToJsonFile: 'assets/test-add-sub-v2.vue/data.json'
+    },
+    {
+      name: "test-add-sub-v3.vue",
+      pathToVueFile: 'assets/test-add-sub-v3.vue/test-add-sub-v3.vue',
+      pathToJsonFile: 'assets/test-add-sub-v3.vue/data.json'
+    },
+    {
+      name: "test-add-sub.vue",
+      pathToVueFile: 'assets/test-add-sub.vue/test-add-sub.vue',
+      pathToJsonFile: 'assets/test-add-sub.vue/data.json'
+    },
+    {
+      name: "test-computed.vue",
+      pathToVueFile: 'assets/test-computed.vue/test-computed.vue',
+      pathToJsonFile: 'assets/test-computed.vue/data.json'
+    },
+    {
+      name: "test-lists.vue",
+      pathToVueFile: 'assets/test-lists.vue/test-lists.vue',
+      pathToJsonFile: 'assets/test-lists.vue/data.json'
+    },
+  ];
 
   forceProperties = {
     center: {
@@ -113,11 +149,11 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
 
 
 
-  private prepareData() {
+  prepareData() {
     this.dataService.getDataJson(this.pathToJsonFile).subscribe(gData => {
       let graph = Graph.fromJson((gData as GraphJSON));
       this.graphStore.setGraph(graph);
-      this.graphStore.something();
+      //this.graphStore.something();
       this.dataService.getVueCode(this.pathToVueFile).subscribe(data => {
         this.fullCodeString = data;
         graph.nodes.map(e => {
@@ -606,5 +642,11 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   toggleCodeView() {
     this.showCodeView = !this.showCodeView;
     this.graphStore.refreshCodeView();
+  }
+
+  changeScenario(scenarioName){
+    this.pathToVueFile = this.scenarios.find(e => e.name == scenarioName).pathToVueFile
+    this.pathToJsonFile = this.scenarios.find(e => e.name == scenarioName).pathToJsonFile
+    this.prepareData();
   }
 }

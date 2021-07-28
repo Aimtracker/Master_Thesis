@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<body>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
+    <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
+    <script src="https://unpkg.com/@dagrejs/graphlib@2.1.4/dist/graphlib.min.js"></script>
+    <script src="https://unpkg.com/save-svg-as-png@1.4.17/lib/saveSvgAsPng.js"></script>
+
+    <button id="downloadButton" onclick="downloadPng()" style="visibility:hidden;">Download as PNG</button>
+    <div id="graph" style="text-align: center;"></div>
+    <script>
+        function downloadPng() {
+            let s = document.querySelector("#graph svg:first-child")
+            saveSvgAsPng(s, "diagram.png")
+        }
+
+        function simple(x) {
+            return `"${x.id}"[label="${x.name}"];`
+        }
+
+        function initFormat(x) {
+            return `"${x.id}"[label="${x.name}",fillcolor=lightgrey,style=filled];`
+        }
+
+        function htmlTag(x) {
+            return `"${x.id}"[label="${x.name}${subline(x.loc)}"];`
+        }
+
+        function edge({ v, w, label }) {
+            if (label === "event")
+                return `"${v}" -> "${w}"[style=bold];`
+            else if (label === "calls")
+                return `"${v}" -> "${w}"[style=solid];`
+            else
+                return `"${v}" -> "${w}"[style=dashed];`
+        }
+
+        function subline(loc) {
+            let start = loc.start.line;
+            let end = loc.end.line;
+            let locString = start == end ? start : `${start}--${end}`;
+            return `\nh: ${locString}`;
+        }
+
+        fetch("./data.json")
+            .then(response => {
+                return response.json();
+            })
+            .then(data => {
+                let graph = graphlib.json.read(data)
+
+                let nodes = graph.nodes().map(id => graph.node(id))
+                let edges = graph.edges().map(edge => { return { ...edge, label: graph.edge(edge) } })
+                let edgesDot = edges.map(edge).join("\n")
+
+                let tags = nodes.filter(x => x.discriminator === "tag")
+                let tagsDot = tags.map(htmlTag).join("\n")
+
+                let other = nodes.filter(x => x.discriminator !== "tag" && x.discriminator !== "init")
+                let otherDot = other.map(simple).join("\n")
+
+                let init = nodes.filter(x => x.discriminator === "init")
+                let initDot = init.map(initFormat).join("\n")
+
+                console.log("Tags")
+                console.log(tagsDot)
+                console.log("Other")
+                console.log(otherDot)
+                console.log("Edges")
+                console.log(edgesDot)
+                console.log("Init")
+                console.log(initDot)
+
+                d3.select("#graph").graphviz()
+                    .renderDot(
+                        `digraph graphname {
+                            forcelabels=true;
+                            node[shape=box];
+                            //rankdir="LR";
+                            edge [style=dashed,arrowhead=empty];
+
+                            ranksep=1;
+                            nodesep=1; 
+                            rankdir=BT;
+                            splines=ortho;
+                            shape=box;
+
+                            nodesep=0.6;
+                               
+                            subgraph cluster_0 {
+                              ${otherDot}
+                            } 
+                            ${initDot}
+                            subgraph cluster_1 {
+                                ${tagsDot}
+                            }
+                            ${edgesDot}
+                        }`
+                    ).on("end", (x) => {
+                        document.getElementById("downloadButton").style.visibility = "visible";
+                    })
+            })
+    </script>

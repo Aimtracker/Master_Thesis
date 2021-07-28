@@ -1,0 +1,303 @@
+l(problems[i].answer) -> problems[i].answer, Check
+l(Check) -> Right, Wrong, Check, count_right_add, accuracy_add, count_wrong_add, count_right_sub, accuracy_sub, count_wrong_sub
+l(New Sub Problem) -> problems[i].a, +, -, New Sub Problem, New Add Problem, problems[i].b, problems[i].answer, Check, Right, Wrong
+l(New Add Problem) -> problems[i].a, +, -, New Sub Problem, New Add Problem, problems[i].b, problems[i].answer, Check, Right, Wrong
+l(created) -> problems[i].a, +, -, New Sub Problem, New Add Problem, problems[i].b, problems[i].answer, Check, Right, Wrong
+
+Unique scenarios (A) of up to 4 elements:
+[
+  [ 'created' ],
+  [ 'created', 'problems[i].answer' ],
+  [ 'created', 'Check' ],
+  [ 'created', 'New Sub Problem' ],
+  [ 'created', 'New Add Problem' ],
+  [ 'created', 'problems[i].answer', 'Check' ],
+  [ 'created', 'New Sub Problem', 'New Add Problem' ],
+  [ 'created', 'New Sub Problem', 'problems[i].answer' ],
+  [ 'created', 'New Sub Problem', 'Check' ],
+  [ 'created', 'New Add Problem', 'New Sub Problem' ],
+  [ 'created', 'New Add Problem', 'problems[i].answer' ],
+  [ 'created', 'New Add Problem', 'Check' ],
+  [
+    'created',
+    'New Sub Problem',
+    'New Add Problem',
+    'New Sub Problem'
+  ],
+  [
+    'created',
+    'New Sub Problem',
+    'New Add Problem',
+    'problems[i].answer'
+  ],
+  [ 'created', 'New Sub Problem', 'New Add Problem', 'Check' ],
+  [ 'created', 'New Sub Problem', 'problems[i].answer', 'Check' ],
+  [
+    'created',
+    'New Add Problem',
+    'New Sub Problem',
+    'New Add Problem'
+  ],
+  [
+    'created',
+    'New Add Problem',
+    'New Sub Problem',
+    'problems[i].answer'
+  ],
+  [ 'created', 'New Add Problem', 'New Sub Problem', 'Check' ],
+  [ 'created', 'New Add Problem', 'problems[i].answer', 'Check' ]
+]
+Scenario: ['created']
+	When 'created'
+	Then 'problems[i].a'
+	And '+'
+	And '-'
+	And 'New Sub Problem'
+	And 'New Add Problem'
+	And 'problems[i].b'
+	And 'problems[i].answer'
+	And 'Check'
+	And 'Right'
+	And 'Wrong'
+
+Scenario: ['created', 'problems[i].answer']
+	Given 'created'
+	When 'problems[i].answer'
+	Then 'problems[i].answer'
+	And 'Check'
+
+Scenario: ['created', 'Check']
+	Given 'created'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'count_right_add'
+	And 'accuracy_add'
+	And 'count_wrong_add'
+	And 'count_right_sub'
+	And 'accuracy_sub'
+	And 'count_wrong_sub'
+
+Scenario: ['created', 'New Sub Problem']
+	Given 'created'
+	When 'New Sub Problem'
+	Then 'problems[i].a'
+	And '+'
+	And '-'
+	And 'New Sub Problem'
+	And 'New Add Problem'
+	And 'problems[i].b'
+	And 'problems[i].answer'
+	And 'Check'
+	And 'Right'
+	And 'Wrong'
+
+Scenario: ['created', 'New Add Problem']
+	Given 'created'
+	When 'New Add Problem'
+	Then 'problems[i].a'
+	And '+'
+	And '-'
+	And 'New Sub Problem'
+	And 'New Add Problem'
+	And 'problems[i].b'
+	And 'problems[i].answer'
+	And 'Check'
+	And 'Right'
+	And 'Wrong'
+
+Scenario: ['created', 'problems[i].answer', 'Check']
+	Given 'created'
+	And 'problems[i].answer'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'count_right_add'
+	And 'accuracy_add'
+	And 'count_wrong_add'
+	And 'count_right_sub'
+	And 'accuracy_sub'
+	And 'count_wrong_sub'
+
+Scenario: ['created', 'New Sub Problem', 'New Add Problem']
+	Given 'created'
+	And 'New Sub Problem'
+	When 'New Add Problem'
+	Then 'problems[i].a'
+	And '+'
+	And '-'
+	And 'New Sub Problem'
+	And 'New Add Problem'
+	And 'problems[i].b'
+	And 'problems[i].answer'
+	And 'Check'
+	And 'Right'
+	And 'Wrong'
+
+Scenario: ['created', 'New Sub Problem', 'problems[i].answer']
+	Given 'created'
+	And 'New Sub Problem'
+	When 'problems[i].answer'
+	Then 'problems[i].answer'
+	And 'Check'
+
+Scenario: ['created', 'New Sub Problem', 'Check']
+	Given 'created'
+	And 'New Sub Problem'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'count_right_add'
+	And 'accuracy_add'
+	And 'count_wrong_add'
+	And 'count_right_sub'
+	And 'accuracy_sub'
+	And 'count_wrong_sub'
+
+Scenario: ['created', 'New Add Problem', 'New Sub Problem']
+	Given 'created'
+	And 'New Add Problem'
+	When 'New Sub Problem'
+	Then 'problems[i].a'
+	And '+'
+	And '-'
+	And 'New Sub Problem'
+	And 'New Add Problem'
+	And 'problems[i].b'
+	And 'problems[i].answer'
+	And 'Check'
+	And 'Right'
+	And 'Wrong'
+
+Scenario: ['created', 'New Add Problem', 'problems[i].answer']
+	Given 'created'
+	And 'New Add Problem'
+	When 'problems[i].answer'
+	Then 'problems[i].answer'
+	And 'Check'
+
+Scenario: ['created', 'New Add Problem', 'Check']
+	Given 'created'
+	And 'New Add Problem'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'count_right_add'
+	And 'accuracy_add'
+	And 'count_wrong_add'
+	And 'count_right_sub'
+	And 'accuracy_sub'
+	And 'count_wrong_sub'
+
+Scenario: ['created', 'New Sub Problem', 'New Add Problem', 'New Sub Problem']
+	Given 'created'
+	And 'New Sub Problem'
+	And 'New Add Problem'
+	When 'New Sub Problem'
+	Then 'problems[i].a'
+	And '+'
+	And '-'
+	And 'New Sub Problem'
+	And 'New Add Problem'
+	And 'problems[i].b'
+	And 'problems[i].answer'
+	And 'Check'
+	And 'Right'
+	And 'Wrong'
+
+Scenario: ['created', 'New Sub Problem', 'New Add Problem', 'problems[i].answer']
+	Given 'created'
+	And 'New Sub Problem'
+	And 'New Add Problem'
+	When 'problems[i].answer'
+	Then 'problems[i].answer'
+	And 'Check'
+
+Scenario: ['created', 'New Sub Problem', 'New Add Problem', 'Check']
+	Given 'created'
+	And 'New Sub Problem'
+	And 'New Add Problem'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'count_right_add'
+	And 'accuracy_add'
+	And 'count_wrong_add'
+	And 'count_right_sub'
+	And 'accuracy_sub'
+	And 'count_wrong_sub'
+
+Scenario: ['created', 'New Sub Problem', 'problems[i].answer', 'Check']
+	Given 'created'
+	And 'New Sub Problem'
+	And 'problems[i].answer'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'count_right_add'
+	And 'accuracy_add'
+	And 'count_wrong_add'
+	And 'count_right_sub'
+	And 'accuracy_sub'
+	And 'count_wrong_sub'
+
+Scenario: ['created', 'New Add Problem', 'New Sub Problem', 'New Add Problem']
+	Given 'created'
+	And 'New Add Problem'
+	And 'New Sub Problem'
+	When 'New Add Problem'
+	Then 'problems[i].a'
+	And '+'
+	And '-'
+	And 'New Sub Problem'
+	And 'New Add Problem'
+	And 'problems[i].b'
+	And 'problems[i].answer'
+	And 'Check'
+	And 'Right'
+	And 'Wrong'
+
+Scenario: ['created', 'New Add Problem', 'New Sub Problem', 'problems[i].answer']
+	Given 'created'
+	And 'New Add Problem'
+	And 'New Sub Problem'
+	When 'problems[i].answer'
+	Then 'problems[i].answer'
+	And 'Check'
+
+Scenario: ['created', 'New Add Problem', 'New Sub Problem', 'Check']
+	Given 'created'
+	And 'New Add Problem'
+	And 'New Sub Problem'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'count_right_add'
+	And 'accuracy_add'
+	And 'count_wrong_add'
+	And 'count_right_sub'
+	And 'accuracy_sub'
+	And 'count_wrong_sub'
+
+Scenario: ['created', 'New Add Problem', 'problems[i].answer', 'Check']
+	Given 'created'
+	And 'New Add Problem'
+	And 'problems[i].answer'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'count_right_add'
+	And 'accuracy_add'
+	And 'count_wrong_add'
+	And 'count_right_sub'
+	And 'accuracy_sub'
+	And 'count_wrong_sub'
+

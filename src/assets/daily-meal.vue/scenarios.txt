@@ -1,0 +1,29 @@
+l(New Day) -> Price, Meal of the day -
+l(Discount all) -> Best steak in town -, Price
+l(created) -> meals[i].name, Price, Best steak in town -, Meal of the day -
+
+Unique scenarios (A) of up to 4 elements:
+[
+  [ 'created' ],
+  [ 'created', 'New Day' ],
+  [ 'created', 'Discount all' ]
+]
+Scenario: ['created']
+	When 'created'
+	Then 'meals[i].name'
+	And 'Price'
+	And 'Best steak in town -'
+	And 'Meal of the day -'
+
+Scenario: ['created', 'New Day']
+	Given 'created'
+	When 'New Day'
+	Then 'Price'
+	And 'Meal of the day -'
+
+Scenario: ['created', 'Discount all']
+	Given 'created'
+	When 'Discount all'
+	Then 'Best steak in town -'
+	And 'Price'
+
