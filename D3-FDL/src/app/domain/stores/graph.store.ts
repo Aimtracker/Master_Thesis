@@ -124,7 +124,7 @@ export class GraphStore extends Store<GraphStoreState>{
               return true;
             case EdgeType.SIMPLE:
               //current is not a method, but sink is and it's triggerable by event
-              if (x.target.isMethodNode() /*&& nodeTriggerableByEvent(graphCopy, x.target)*/) {
+              if (x.target.isMethodNode() && nodeTriggerableByEvent(graphCopy, x.target)) {
                 return false;
                 //property chain or tag or reads relation
               } else return true;
@@ -204,29 +204,4 @@ export class GraphStore extends Store<GraphStoreState>{
       this.highlightService.highlightAll();
     }, 10);
   }
-
-  // something(){
-  //   let tmpGraph = this.state.graph;
-  //   tmpGraph.nodes.forEach(element => {
-  //     if(element.isTagNode()){
-  //       element.group = 1;
-  //     }else{
-  //       element.group = 2;
-  //     }
-  //   });
-
-  //   tmpGraph.edges.forEach(element => {
-  //     if(element.source.type == element.target.type){
-  //       element.value = 10;
-  //     }else{
-  //       element.value = 1000;
-  //     }
-  //   });
-
-  //   this.setState({
-  //     ...this.state,
-  //     graph: tmpGraph
-  //   })
-  // }
-
 }

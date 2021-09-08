@@ -31,7 +31,6 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   pathToJsonFile: string = 'assets/test.vue/data.json';
 
 
-  // TODO: move that into state manager
   isPartialGraphView: boolean = false;
   isUIView: boolean = false;
 
@@ -82,6 +81,11 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       name: "test-lists.vue",
       pathToVueFile: 'assets/test-lists.vue/test-lists.vue',
       pathToJsonFile: 'assets/test-lists.vue/data.json'
+    },
+    {
+      name: "minExample",
+      pathToVueFile: 'assets/test-lists.vue/test-lists.vue',
+      pathToJsonFile: 'assets/minExample.vue/data.json'
     },
   ];
 
@@ -146,7 +150,10 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   }
 
 
-
+  /**
+  * Reads the graph data and the code data and prepares the graph for d3 rendering.
+  * After the preparation the graph as well as the codeview rendering methods are called.
+  */
   prepareData() {
     this.dataService.getDataJson(this.graphStore.state.pathToJsonFile).subscribe(gData => {
       let graph = Graph.fromJson((gData as GraphJSON));
@@ -226,8 +233,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
         else if (d.label == EdgeType.SIMPLE)
           return "dotted";
       })
-      .attr("marker-end", "url(#arrow)")
-      .on('click', (e, d) => { e.stopPropagation(); this.handleEdgeMouseClick(e, d); });
+      .attr("marker-end", "url(#arrow)");
 
     let node = this.zoomContainer.append("g")
       .attr("class", "nodes")
@@ -236,20 +242,6 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       .append("g")
       .attr("class", "node");
 
-
-
-    // let rect = node
-    //   .append("rect")
-    //   .attr("id", function (d) { return d.id; })
-    //   .attr("width", this.rectWidth)
-    //   .attr("height", this.rectHeight)
-    //   .on('pointermove', (e) => { this.handleMouseMovement(e); })
-    //   .on('click', (e, d) => { e.stopPropagation(); this.handleNodeMouseClick(e, d); });
-    // .call(d3.drag()
-    //   .on("start", (d) => dragstarted(d))
-    //   .on("drag", (d) => dragged(d))
-    //   .on("end", (d) => dragended(d)));
-
     let rect = node
       .append("rect")
       .attr("id", function (d) { return d.id; })
@@ -257,19 +249,10 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       .attr("height", this.nodeSize * 2)
       .attr("rx", this.nodeSize)
       .attr("ry", this.nodeSize)
-      .on('pointermove', (e) => { this.handleMouseMovement(e); })
       .on('click', (e, d) => { e.stopPropagation(); this.handleNodeMouseClick(e, d); })
       .on("dblclick", (e, d) => { e.stopPropagation(); this.handleNodeMouseDoubleClick(e, d); })
       .call(d3.drag()
         .on("drag", (e, d) => this.dragged(e, d)));
-
-
-    // let label = node.append("text")
-    //   .text(function (d) { return d.name; })
-    //   .style("text-anchor", "middle")
-    //   .style("fill", "#555")
-    //   .style("font-family", "Arial")
-    //   .style("font-size", 12);
 
     let label = node.append("text")
       .attr("class", (d) => { return d.loc ? "node-text node-text-top" : "node-text"; })
@@ -361,26 +344,11 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       }
     });
 
-    //TODO: See if this interferes with the edge function
-    // d3.select('svg').select(".links")
-    //   .selectAll(".link").selectAll("line")
-    //   .attr("x1", function (d: any) { return d.source.x; })
-    //   .attr("y1", function (d: any) { return d.source.y; })
-    //   .attr("x2", function (d: any) { return d.target.x; })
-    //   .attr("y2", function (d: any) { return d.target.y; });
-
-    // d3.select('svg').selectAll("rect")
-    //   .attr("x", function (d: any) { return d.x; })
-    //   .attr("y", function (d: any) { return d.y; });
-
     d3.select('svg').selectAll(".node")
       .attr("transform", function (d: any) {
         return "translate(" + d.x + "," + d.y + ")";
       });
 
-    // d3.select('svg').selectAll("text")
-    //   .attr("x", function (d: any) { console.log("dx", d);return d.x; })
-    //   .attr("y", function (d: any) { console.log("dy", d);return d.y + d.nodeSize; });
     d3.select('svg').selectAll("line").call(edge);
 
     // Sets the (x1, y1, x2, y2) line properties for graph edges.
@@ -433,6 +401,10 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
     }
   }
 
+    /**
+  * Updates all forces of the graph with the set properties.
+  * After updating the forces the simulation is restarted for the changes to take effect.
+  */
   updateForces() {
     // get each force by name and update the properties
     this.simulation.force("center")
@@ -463,6 +435,12 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
     this.simulation.alpha(0.1).restart();
   }
 
+  /**
+  * Handles a draggin event on a node.
+  * Fixes the position of the node and restarts the simulation.
+  * @param e is the event provided by d3.
+  * @param d is the (logical) node that has been dragged.
+  */
   dragged(e, d) {
     console.log("DRAGGED");
     this.simulation.alpha(0.1).restart();
@@ -471,12 +449,11 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   }
 
   /**
-    * Handles mouse movement.
-    */
-  handleMouseMovement(e) {
-    //console.log('Mm', e);
-  }
-
+  * Handles a double mouse click on a node.
+  * Unfixes the position of the node and restarts the simulation.
+  * @param e is the event provided by d3.
+  * @param d is the (logical) node that has been double clicked on.
+  */
   handleNodeMouseDoubleClick(e, d) {
     this.simulation.alpha(0.1).restart();
     d.fx = null;
@@ -521,23 +498,6 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-* Colors the selected edge yellow, the source node red and the target node green.
-* @param e is the event provided by d3.
-* @param d is the (logical) edge that has been clicked on.
-*/
-  handleEdgeMouseClick(e, d) {
-    console.log('Mc e', e);
-    console.log('Mc d', d);
-    this.deselectAll();
-    //select node HTMLElement that was clicked on and change fill color
-    d3.select(e.currentTarget).style("stroke", "#ff0").attr("marker-end", "url(#arrow-marked)");
-    //select source and color it red
-    d3.selectAll("rect").filter((data: Node) => data.id == d.source.id).style("fill", "#f00");
-    //select target and color it green
-    d3.selectAll("rect").filter((data: Node) => data.id == d.target.id).style("fill", "#0f0");
-
-  }
 
   /**
   * Colors the nodes in the nodesToColor array in a color specified by the color parameter.
@@ -605,11 +565,20 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   //   });
   // }
 
+  /**
+  * Deselects all currently highlighted nodes and edges
+  */
   deselectAll() {
     d3.selectAll("line").style("stroke", "").attr("marker-end", "url(#arrow)");
     d3.selectAll("rect").style("fill", "");
   }
 
+  /**
+  * Filter all edges that that belong to the nodes in nodesToShow
+  * @param nodesToShow is an array of nodes that will be shown
+  * @param allEdges is an array of all edges
+  * @returns an array of edges that belong to the nodes in nodesToShow
+  */
   filterEdges(nodesToShow: Node[], allEdges: Edge[]): Edge[] {
     if (!nodesToShow && !allEdges) {
       return [];
@@ -617,7 +586,9 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
     return allEdges.filter(e => nodesToShow.find(n => e.source.id == n.id) != undefined && nodesToShow.find(n => e.target.id == n.id) != undefined);
   }
 
-
+  /**
+  * Deselects all currently highlighted nodes and edges as well as highlighted lines in the code view
+  */
   resetSelection() {
     if (this.isPartialGraphView && !this.isUIView) {
       this.resetGraph();
@@ -629,6 +600,9 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
     this.graphStore.resetHighlightedLinesInCode();
   }
 
+  /**
+  * Resets and re-renders the graph
+  */
   resetGraph() {
     this.nodes = this.graphStore.state.graph.nodes;
     this.links = this.graphStore.state.graph.edges;
@@ -636,12 +610,19 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
     this.graphStore.resetHighlightedLinesInCode();
   }
 
+  /**
+  * Toggles and re-renders the code view
+  */
   toggleCodeView() {
     this.showCodeView = !this.showCodeView;
     this.graphStore.refreshCodeView();
   }
 
-  changeScenario(scenarioName){
+  /**
+  * Changes the currently displayed scenario based on the scenarioName parameter.
+  * @param scenarioName the name of the scenario that should be displayed. Has to present in the scenarios array.
+  */
+  changeScenario(scenarioName) {
     let ptvf = this.scenarios.find(e => e.name == scenarioName).pathToVueFile;
     let ptjf = this.scenarios.find(e => e.name == scenarioName).pathToJsonFile;
     this.graphStore.setScenario(ptjf, ptvf);

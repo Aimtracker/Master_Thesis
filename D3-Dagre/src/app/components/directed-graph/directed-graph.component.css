@@ -1,0 +1,83 @@
+.link line {
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+.dotted {
+  stroke-dasharray:5, 2;
+}
+
+.thick {
+  stroke-width: 3px !important;
+}
+
+.arrow {
+  fill: #000;
+}
+.arrow-in {
+  fill: #f00;
+}
+
+.arrow-out {
+  fill: #0f0;
+}
+
+.arrow-marked {
+  fill: #ff0;
+}
+
+.node-text {
+  font-family: "Roboto", sans-serif;
+  font-size: 1em;
+  text-anchor: middle;
+  alignment-baseline: middle;
+  pointer-events: none;
+  /* Disable text selection
+     from http://stackoverflow.com/questions/826782/css-rule-to-disable-text-selection-highlighting */
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;
+}
+
+.node-text-top{
+  alignment-baseline: after-edge !important;
+}
+
+.node-text-bottom{
+  alignment-baseline: before-edge !important;
+}
+
+.node rect {
+  pointer-events: all;
+  fill: #ccc;
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+
+
+.clusters rect {
+  fill: #00ffd0;
+  stroke: #999;
+  stroke-width: 1.5px;
+}
+
+text {
+  font-weight: 300;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+  font-size: 14px;
+}
+
+.node rect {
+  stroke: #999;
+  fill: #fff;
+  stroke-width: 1.5px;
+}
+
+.edgePath path {
+  stroke: #333;
+  stroke-width: 1.5px;
+}

@@ -1,0 +1,145 @@
+{
+  "options": {
+    "directed": true,
+    "multigraph": false,
+    "compound": true
+  },
+  "nodes": [
+        {
+      "v": "this",
+      "value": {
+        "id": "this",
+        "type": "this",
+        "name": "this",
+        "discriminator": "data"
+      }
+    },
+    {
+      "v": "this.a",
+      "value": {
+        "id": "this.a",
+        "type": "name-identifier",
+        "name": "a",
+        "parent": "this",
+        "discriminator": "mehod"
+      },
+      "parent": "this"
+    },
+    {
+      "v": "this.value",
+      "value": {
+        "id": "this.value",
+        "type": "name-identifier",
+        "name": "value",
+        "parent": "this",
+        "discriminator": "mehod"
+      },
+      "parent": "this"
+    },
+    {
+      "v": "span_1",
+      "value": {
+        "id": "span_1",
+        "name": "a",
+        "loc": {
+          "start": {
+            "line": 3,
+            "column": 8
+          },
+          "end": {
+            "line": 3,
+            "column": 28
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "span_2",
+      "value": {
+        "id": "span_2",
+        "name": "value",
+        "loc": {
+          "start": {
+            "line": 5,
+            "column": 8
+          },
+          "end": {
+            "line": 5,
+            "column": 28
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this.do_something()",
+      "value": {
+        "id": "this.do_something()",
+        "name": "do_something()",
+        "discriminator": "method"
+      }
+    },
+    {
+      "v": "this.check_something()",
+      "value": {
+        "id": "this.check_something()",
+        "name": "check_something()",
+        "discriminator": "method"
+      }
+    }
+  ],
+
+  "edges": [
+    {
+      "v": "this",
+      "w": "this.a",
+      "value": "simple"
+    },
+    {
+      "v": "this.a",
+      "w": "span_1",
+      "value": "simple"
+    },
+    {
+      "v": "span_1",
+      "w": "this.a",
+      "value": "simple"
+    },
+    {
+      "v": "this.a",
+      "w": "this.do_something()",
+      "value": "simple"
+    },
+    {
+      "v": "this.do_something()",
+      "w": "this.a",
+      "value": "simple"
+    },
+    {
+      "v": "this.check_something()",
+      "w": "this.a",
+      "value": "simple"
+    },
+    {
+      "v": "this.a",
+      "w": "this.check_something()",
+      "value": "simple"
+    },
+    {
+      "v": "this.check_something()",
+      "w": "this.value",
+      "value": "simple"
+    },
+    {
+      "v": "this.value",
+      "w": "this.check_something()",
+      "value": "simple"
+    },
+    {
+      "v": "this.value",
+      "w": "span_2",
+      "value": "simple"
+    }
+  ]
+}
