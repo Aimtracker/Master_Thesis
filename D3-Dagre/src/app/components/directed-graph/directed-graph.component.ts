@@ -25,7 +25,9 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   private nodes: Node[];
   private links: Edge[];
 
-  pathToJsonFile: string = 'assets/test.vue/data.json';
+  //pathToJsonFile: string = 'assets/test.vue/data.json';
+  //pathToJsonFile: string = 'assets/test-add-sub-v3.vue/data.json';
+  pathToJsonFile: string = 'assets/merged.vue/data.json';
 
   private svg;
 
@@ -132,6 +134,7 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
   renderGraph() {
     this.g.graph().rankdir = "TB";
     this.g.graph().nodesep = 60;
+    this.g.graph().edgesep = 10;
     var render = new dagreD3.render();
 
     // Set up an SVG group so that we can translate the final graph.

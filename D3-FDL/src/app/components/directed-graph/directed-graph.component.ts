@@ -87,6 +87,16 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
       pathToVueFile: 'assets/test-lists.vue/test-lists.vue',
       pathToJsonFile: 'assets/minExample.vue/data.json'
     },
+    {
+      name: "test_min.vue",
+      pathToVueFile: 'assets/test_min.vue/test.vue',
+      pathToJsonFile: 'assets/test_min.vue/data.json'
+    },
+    {
+      name: "merged.vue",
+      pathToVueFile: 'assets/merged.vue/merged.vue',
+      pathToJsonFile: 'assets/merged.vue/data.json'
+    },
   ];
 
   forceProperties = {
@@ -172,8 +182,8 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
         this.nodes = this.graphStore.state.graph.nodes;
         this.links = this.graphStore.state.graph.edges;
 
-        this.renderSvg();
-        this.graphStore.refreshCodeView();
+        //this.renderSvg();
+        //this.graphStore.refreshCodeView();
       });
     });
   }

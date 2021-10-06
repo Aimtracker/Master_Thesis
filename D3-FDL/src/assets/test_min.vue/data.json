@@ -1,0 +1,234 @@
+{
+  "options": {
+    "directed": true,
+    "multigraph": false,
+    "compound": true
+  },
+  "nodes": [
+    {
+      "v": "this.created",
+      "value": {
+        "id": "this.created",
+        "name": "created",
+        "discriminator": "init"
+      }
+    },
+    {
+      "v": "this",
+      "value": {
+        "id": "this",
+        "type": "this",
+        "name": "this",
+        "discriminator": "data"
+      }
+    },
+    {
+      "v": "input_6_14_6_57",
+      "value": {
+        "id": "input_6_14_6_57",
+        "name": "answer",
+        "loc": {
+          "start": {
+            "line": 6,
+            "column": 14
+          },
+          "end": {
+            "line": 6,
+            "column": 57
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this.answer",
+      "value": {
+        "id": "this.answer",
+        "type": "name-identifier",
+        "name": "answer",
+        "parent": "this",
+        "discriminator": "data"
+      },
+      "parent": "this"
+    },
+    {
+      "v": "button_7_8_15_17",
+      "value": {
+        "id": "button_7_8_15_17",
+        "name": "Check",
+        "loc": {
+          "start": {
+            "line": 7,
+            "column": 8
+          },
+          "end": {
+            "line": 15,
+            "column": 17
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this.may_check()",
+      "value": {
+        "id": "this.may_check()",
+        "name": "may_check()",
+        "discriminator": "method"
+      }
+    },
+    {
+      "v": "this.check_answer()",
+      "value": {
+        "id": "this.check_answer()",
+        "name": "check_answer()",
+        "discriminator": "method"
+      }
+    },
+    {
+      "v": "button_16_8_23_17",
+      "value": {
+        "id": "button_16_8_23_17",
+        "name": "Right",
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 8
+          },
+          "end": {
+            "line": 23,
+            "column": 17
+          }
+        },
+        "discriminator": "tag"
+      }
+    },
+    {
+      "v": "this.right",
+      "value": {
+        "id": "this.right",
+        "type": "name-identifier",
+        "name": "right",
+        "parent": "this",
+        "discriminator": "data"
+      },
+      "parent": "this"
+    },
+    {
+      "v": "this.add_problem()",
+      "value": {
+        "id": "this.add_problem()",
+        "name": "add_problem()",
+        "discriminator": "method"
+      }
+    },
+    {
+      "v": "this.c",
+      "value": {
+        "id": "this.c",
+        "type": "name-identifier",
+        "name": "c",
+        "parent": "this",
+        "discriminator": "data"
+      },
+      "parent": "this"
+    }
+  ],
+  "edges": [
+    {
+      "v": "this",
+      "w": "this.answer",
+      "value": "simple"
+    },
+    {
+      "v": "input_6_14_6_57",
+      "w": "this.answer",
+      "value": "event"
+    },
+    {
+      "v": "this.answer",
+      "w": "input_6_14_6_57",
+      "value": "simple"
+    },
+    {
+      "v": "this.may_check()",
+      "w": "button_7_8_15_17",
+      "value": "simple"
+    },
+    {
+      "v": "button_7_8_15_17",
+      "w": "this.check_answer()",
+      "value": "event"
+    },
+    {
+      "v": "this",
+      "w": "this.right",
+      "value": "simple"
+    },
+    {
+      "v": "this.right",
+      "w": "button_16_8_23_17",
+      "value": "simple"
+    },
+    {
+      "v": "this.created",
+      "w": "this.add_problem()",
+      "value": "calls"
+    },
+    {
+      "v": "this",
+      "w": "this.c",
+      "value": "simple"
+    },
+    {
+      "v": "this.c",
+      "w": "this.add_problem()",
+      "value": "simple"
+    },
+    {
+      "v": "this.add_problem()",
+      "w": "this.c",
+      "value": "simple"
+    },
+    {
+      "v": "this.add_problem()",
+      "w": "this.answer",
+      "value": "simple"
+    },
+    {
+      "v": "this.add_problem()",
+      "w": "this.right",
+      "value": "simple"
+    },
+    {
+      "v": "this.answer",
+      "w": "this.may_check()",
+      "value": "simple"
+    },
+    {
+      "v": "this.right",
+      "w": "this.may_check()",
+      "value": "simple"
+    },
+    {
+      "v": "this.c",
+      "w": "this.check_answer()",
+      "value": "simple"
+    },
+    {
+      "v": "this.answer",
+      "w": "this.check_answer()",
+      "value": "simple"
+    },
+    {
+      "v": "this.right",
+      "w": "this.check_answer()",
+      "value": "simple"
+    },
+    {
+      "v": "this.check_answer()",
+      "w": "this.right",
+      "value": "simple"
+    }
+  ]
+}

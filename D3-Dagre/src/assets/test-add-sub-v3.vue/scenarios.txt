@@ -1,0 +1,267 @@
+l(problems[i].answer) -> problems[i].answer, Check, Check
+l(Check) -> Right, Wrong, Check, Check, count_right_add, accuracy_add, count_wrong_add
+l(Check) -> Right, Wrong, Check, Check, count_right_sub, accuracy_sub, count_wrong_sub
+l(New Problem) -> problems[i].a, +, -, Check, Check, problems[i].b, problems[i].answer, Right, Wrong
+l(created) -> problems[i].a, +, -, Check, Check, problems[i].b, problems[i].answer, Right, Wrong
+
+Unique scenarios (A) of up to 4 elements:
+[
+  [ 'created' ],
+  [ 'created', 'problems[i].answer' ],
+  [ 'created', 'Check' ],
+  [ 'created', 'Check' ],
+  [ 'created', 'New Problem' ],
+  [ 'created', 'problems[i].answer', 'Check' ],
+  [ 'created', 'problems[i].answer', 'Check' ],
+  [ 'created', 'Check', 'Check' ],
+  [ 'created', 'Check', 'Check' ],
+  [ 'created', 'New Problem', 'Check' ],
+  [ 'created', 'New Problem', 'Check' ],
+  [ 'created', 'New Problem', 'problems[i].answer' ],
+  [ 'created', 'problems[i].answer', 'Check', 'Check' ],
+  [ 'created', 'problems[i].answer', 'Check', 'Check' ],
+  [ 'created', 'Check', 'Check', 'Check' ],
+  [ 'created', 'Check', 'Check', 'Check' ],
+  [ 'created', 'New Problem', 'Check', 'Check' ],
+  [ 'created', 'New Problem', 'Check', 'Check' ],
+  [ 'created', 'New Problem', 'problems[i].answer', 'Check' ],
+  [ 'created', 'New Problem', 'problems[i].answer', 'Check' ]
+]
+Scenario: ['created']
+	When 'created'
+	Then 'problems[i].a'
+	And '+'
+	And '-'
+	And 'Check'
+	And 'Check'
+	And 'problems[i].b'
+	And 'problems[i].answer'
+	And 'Right'
+	And 'Wrong'
+
+Scenario: ['created', 'problems[i].answer']
+	Given 'created'
+	When 'problems[i].answer'
+	Then 'problems[i].answer'
+	And 'Check'
+	And 'Check'
+
+Scenario: ['created', 'Check']
+	Given 'created'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'Check'
+	And 'count_right_add'
+	And 'accuracy_add'
+	And 'count_wrong_add'
+
+Scenario: ['created', 'Check']
+	Given 'created'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'Check'
+	And 'count_right_sub'
+	And 'accuracy_sub'
+	And 'count_wrong_sub'
+
+Scenario: ['created', 'New Problem']
+	Given 'created'
+	When 'New Problem'
+	Then 'problems[i].a'
+	And '+'
+	And '-'
+	And 'Check'
+	And 'Check'
+	And 'problems[i].b'
+	And 'problems[i].answer'
+	And 'Right'
+	And 'Wrong'
+
+Scenario: ['created', 'problems[i].answer', 'Check']
+	Given 'created'
+	And 'problems[i].answer'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'Check'
+	And 'count_right_add'
+	And 'accuracy_add'
+	And 'count_wrong_add'
+
+Scenario: ['created', 'problems[i].answer', 'Check']
+	Given 'created'
+	And 'problems[i].answer'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'Check'
+	And 'count_right_sub'
+	And 'accuracy_sub'
+	And 'count_wrong_sub'
+
+Scenario: ['created', 'Check', 'Check']
+	Given 'created'
+	And 'Check'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'Check'
+	And 'count_right_sub'
+	And 'accuracy_sub'
+	And 'count_wrong_sub'
+
+Scenario: ['created', 'Check', 'Check']
+	Given 'created'
+	And 'Check'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'Check'
+	And 'count_right_add'
+	And 'accuracy_add'
+	And 'count_wrong_add'
+
+Scenario: ['created', 'New Problem', 'Check']
+	Given 'created'
+	And 'New Problem'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'Check'
+	And 'count_right_add'
+	And 'accuracy_add'
+	And 'count_wrong_add'
+
+Scenario: ['created', 'New Problem', 'Check']
+	Given 'created'
+	And 'New Problem'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'Check'
+	And 'count_right_sub'
+	And 'accuracy_sub'
+	And 'count_wrong_sub'
+
+Scenario: ['created', 'New Problem', 'problems[i].answer']
+	Given 'created'
+	And 'New Problem'
+	When 'problems[i].answer'
+	Then 'problems[i].answer'
+	And 'Check'
+	And 'Check'
+
+Scenario: ['created', 'problems[i].answer', 'Check', 'Check']
+	Given 'created'
+	And 'problems[i].answer'
+	And 'Check'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'Check'
+	And 'count_right_sub'
+	And 'accuracy_sub'
+	And 'count_wrong_sub'
+
+Scenario: ['created', 'problems[i].answer', 'Check', 'Check']
+	Given 'created'
+	And 'problems[i].answer'
+	And 'Check'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'Check'
+	And 'count_right_add'
+	And 'accuracy_add'
+	And 'count_wrong_add'
+
+Scenario: ['created', 'Check', 'Check', 'Check']
+	Given 'created'
+	And 'Check'
+	And 'Check'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'Check'
+	And 'count_right_add'
+	And 'accuracy_add'
+	And 'count_wrong_add'
+
+Scenario: ['created', 'Check', 'Check', 'Check']
+	Given 'created'
+	And 'Check'
+	And 'Check'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'Check'
+	And 'count_right_sub'
+	And 'accuracy_sub'
+	And 'count_wrong_sub'
+
+Scenario: ['created', 'New Problem', 'Check', 'Check']
+	Given 'created'
+	And 'New Problem'
+	And 'Check'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'Check'
+	And 'count_right_sub'
+	And 'accuracy_sub'
+	And 'count_wrong_sub'
+
+Scenario: ['created', 'New Problem', 'Check', 'Check']
+	Given 'created'
+	And 'New Problem'
+	And 'Check'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'Check'
+	And 'count_right_add'
+	And 'accuracy_add'
+	And 'count_wrong_add'
+
+Scenario: ['created', 'New Problem', 'problems[i].answer', 'Check']
+	Given 'created'
+	And 'New Problem'
+	And 'problems[i].answer'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'Check'
+	And 'count_right_add'
+	And 'accuracy_add'
+	And 'count_wrong_add'
+
+Scenario: ['created', 'New Problem', 'problems[i].answer', 'Check']
+	Given 'created'
+	And 'New Problem'
+	And 'problems[i].answer'
+	When 'Check'
+	Then 'Right'
+	And 'Wrong'
+	And 'Check'
+	And 'Check'
+	And 'count_right_sub'
+	And 'accuracy_sub'
+	And 'count_wrong_sub'
+
