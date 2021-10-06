@@ -182,8 +182,8 @@ export class DirectedGraphComponent implements OnInit, OnDestroy {
         this.nodes = this.graphStore.state.graph.nodes;
         this.links = this.graphStore.state.graph.edges;
 
-        //this.renderSvg();
-        //this.graphStore.refreshCodeView();
+        this.renderSvg();
+        this.graphStore.refreshCodeView();
       });
     });
   }
