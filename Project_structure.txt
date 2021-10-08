@@ -1,0 +1,34 @@
+.
+├── e2e
+├── src
+│   ├── app
+│   │   ├── components
+│   │   │   ├── code-view
+│   │   │   └── directed-graph
+│   │   ├── domain
+│   │   │   ├── classes
+│   │   │   ├── entities
+│   │   │   ├── enums
+│   │   │   ├── models
+│   │   │   └── stores
+│   │   ├── services
+│   │   ├── utils
+│   │   ├── app-routing.module.ts
+│   │   ├── app.component.css
+│   │   ├── app.component.html
+│   │   ├── app.component.spec.ts
+│   │   ├── app.component.ts
+│   │   └── app.module.ts
+│   ├── assets
+│   ├── environments
+│   ├── types
+│   └── index.html
+└──
+
+.
+├── cola.min.js
+├── data.json
+├── data2.json
+├── index.html
+├── index2.html
+└── style.css

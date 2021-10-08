@@ -55,9 +55,9 @@ svg {
         .avoidOverlaps(true)
         .handleDisconnected(false)
         .size([width, height])
-		//40-50 is a good value!
-		.symmetricDiffLinkLengths(40)
-		//.start(10,15,20);
+		//60-70 is a good value!
+		.symmetricDiffLinkLengths(60)
+		.start(10,15,20);
 		
 
     var svg = d3.select("body").append("svg")
@@ -72,11 +72,16 @@ var zoom = d3.zoom().on("zoom", zoomed);
 
 svg.call(zoom);
 
-    d3.json("./data2.json", function (error, graph) {
+    d3.json("./large-data.json", function (error, graph) {
+console.log(graph.nodes)
+console.log(graph.links)
+console.log(graph.groups)
+
 
         graph.nodes.forEach(function (v) {
 		console.log(v.height)
-            //v.width = v.height = 95;
+            v.width = 220;
+            v.height = 95;
         })
         graph.groups.forEach(function (g) { g.padding = 0.01; });
         cola
@@ -121,6 +126,7 @@ svg.call(zoom);
 
         node.append("title")
             .text(function (d) { return d.name; });
+			
 
         cola.on("tick", function () {
             link.attr("x1", function (d) { return d.source.x; })
